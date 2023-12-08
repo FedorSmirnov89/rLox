@@ -94,6 +94,16 @@ pub struct Location {
     pub pos: u64,
 }
 
+impl Display for Location {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "(line: {}, column: {}, pos: {})",
+            self.line, self.column, self.pos
+        )
+    }
+}
+
 impl Default for Location {
     fn default() -> Self {
         Self {
@@ -188,6 +198,15 @@ impl TokenType {
             _ => false,
         }
     }
+
+    pub(crate) fn matches(&self, other: &Self) -> bool {
+        match (self, other) {
+            (TokenType::String(_), TokenType::String(_)) => true,
+            (TokenType::Identifier(_), TokenType::Identifier(_)) => true,
+            (TokenType::Number(_), TokenType::Number(_)) => true,
+            (_, _) => self == other,
+        }
+    }
 }
 
 impl Debug for TokenType {
@@ -258,4 +277,19 @@ fn fmt(t: &TokenType, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         TokenType::WHILE => "KW: WHILE",
     };
     write!(f, "{s}")
+}
+
+#[cfg(test)]
+mod test {
+    use crate::domain::scanning::TokenType;
+
+    #[test]
+    fn matches_works() {
+        assert!(TokenType::AND.matches(&TokenType::AND));
+        assert!(!TokenType::AND.matches(&TokenType::OR));
+
+        assert!(TokenType::String("a".into()).matches(&TokenType::String("b".into())));
+        assert!(!TokenType::String("a".into()).matches(&TokenType::Identifier("a".into())));
+        assert!(!TokenType::String("a".into()).matches(&TokenType::AND));
+    }
 }

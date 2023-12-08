@@ -5,6 +5,7 @@ pub mod domain;
 pub mod errors;
 
 mod arguments;
+mod parser;
 mod scanner;
 
 pub use arguments::*;
@@ -62,8 +63,13 @@ impl Interpreter {
     /// Interprets the given source string while mutating the current state of the interpreter
     ///
     pub fn interpret_src_str(&mut self, source_str: &str) -> Result<(), Vec<anyhow::Error>> {
-        let _tokens = scan_input(source_str)?;
+        let tokens = scan_input(source_str)?;
+        let expressions = parser::parse(tokens)?;
         println!("interpreting the following: '{source_str}'");
+        println!("here is the AST we got: ");
+        for expr in expressions {
+            println!("{}", expr);
+        }
         Ok(())
     }
 }
