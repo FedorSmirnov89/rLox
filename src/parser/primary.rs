@@ -1,20 +1,28 @@
 use anyhow::{anyhow, Result};
 
-use crate::domain::{grammar::Primary, scanning::TokenType};
+use crate::domain::{
+    grammar::{NumLiteral, Primary, StringLiteral},
+    scanning::TokenType,
+};
 
 use super::Parser;
 
 impl<'tokens> Parser<'tokens> {
     pub(super) fn primary(&mut self) -> Result<Primary> {
         let current = self.current().ok_or(anyhow!("Unexpected end of input"))?;
+        let location = current.location();
 
         let primary = match current.t_type {
-            TokenType::Number(n) => Primary::Number(n.into()),
-            TokenType::String(ref s) => Primary::String(s.clone().into()), // TODO check whether we can not copy here
-            TokenType::Identifier(ref i) => Primary::Identifier(i.clone().into()),
-            TokenType::TRUE => Primary::True,
-            TokenType::FALSE => Primary::False,
-            TokenType::NIL => Primary::Nil,
+            TokenType::Number(n) => Primary::Number(NumLiteral::new(n, location)),
+            TokenType::String(ref s) => {
+                Primary::String(StringLiteral::new_string(s.clone(), location))
+            } // TODO check whether we can not copy here
+            TokenType::Identifier(ref i) => {
+                Primary::Identifier(StringLiteral::new_identifier(i.clone(), location))
+            }
+            TokenType::TRUE => Primary::true_literal(location),
+            TokenType::FALSE => Primary::false_literal(location),
+            TokenType::NIL => Primary::nil_literal(location),
             TokenType::ParenLeft => {
                 self.advance();
                 let expr = self.expression()?;
@@ -67,18 +75,15 @@ mod test {
     use crate::{
         domain::{
             grammar::{Expression, Primary},
-            scanning::{Location, Token, TokenType},
+            location::Location,
+            scanning::{Token, TokenType},
         },
         parser::parse,
     };
 
     #[test]
     fn correct_grouping() {
-        let location = Location {
-            column: 0,
-            line: 0,
-            pos: 0,
-        };
+        let location = Location::default();
 
         let input = vec![
             Token::one_char(TokenType::ParenLeft, location),

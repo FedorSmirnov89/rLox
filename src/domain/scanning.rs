@@ -1,5 +1,7 @@
 use std::fmt::{Debug, Display};
 
+use super::location::Location;
+
 #[derive(Debug, PartialEq)]
 pub struct Token {
     pub t_type: TokenType,
@@ -84,33 +86,6 @@ impl Token {
 
     pub fn location(&self) -> Location {
         self.location
-    }
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Location {
-    pub line: u64,
-    pub column: u16,
-    pub pos: u64,
-}
-
-impl Display for Location {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "(line: {}, column: {}, pos: {})",
-            self.line, self.column, self.pos
-        )
-    }
-}
-
-impl Default for Location {
-    fn default() -> Self {
-        Self {
-            line: 1,
-            column: 1,
-            pos: 0,
-        }
     }
 }
 

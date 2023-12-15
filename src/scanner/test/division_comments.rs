@@ -1,4 +1,5 @@
-use crate::domain::scanning::{Location, Token, TokenType};
+use crate::domain::location::Location;
+use crate::domain::scanning::{Token, TokenType};
 use crate::scanner::scan_input;
 use crate::{operator, splitting_test};
 

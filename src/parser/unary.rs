@@ -35,18 +35,15 @@ mod test {
     use crate::{
         domain::{
             grammar::{Expression, Unary},
-            scanning::{Location, Token, TokenType},
+            location::Location,
+            scanning::{Token, TokenType},
         },
         parser::parse,
     };
 
     #[test]
     fn simple_negation() {
-        let loc = Location {
-            column: 0,
-            line: 0,
-            pos: 0,
-        };
+        let loc = Location::default();
 
         let input = vec![
             Token::one_char(TokenType::Minus, loc),

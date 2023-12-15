@@ -1,5 +1,11 @@
 mod display;
 
+pub(crate) mod primary;
+pub(crate) use primary::*;
+
+#[cfg(test)]
+use super::location::Location;
+
 #[derive(PartialEq, Eq, Debug)]
 pub(crate) enum Expression {
     Equality(Equality),
@@ -18,13 +24,17 @@ pub(crate) enum Equality {
     },
 }
 
+#[cfg(test)]
 impl Equality {
     pub(crate) fn string_equality(i1: impl Into<String>, i2: impl Into<String>) -> Self {
         let left = Equality::Comparison(Comparison::Term(Term::Factor(Factor::Unary(
-            Unary::Primary(Primary::String(i1.into().into())),
+            Unary::Primary(Primary::String(StringLiteral::new_string(
+                i1.into(),
+                Location::default(),
+            ))),
         ))));
         let right = Comparison::Term(Term::Factor(Factor::Unary(Unary::Primary(
-            Primary::String(i2.into().into()),
+            Primary::String(StringLiteral::new_string(i2.into(), Location::default())),
         ))));
         Equality::EqualityCheck {
             left: Box::new(left),
@@ -42,13 +52,14 @@ pub(crate) enum Comparison {
     LessEqual { left: Box<Comparison>, right: Term },
 }
 
+#[cfg(test)]
 impl Comparison {
     pub(crate) fn string_less_equal(i1: impl Into<String>, i2: impl Into<String>) -> Self {
         let left = Comparison::Term(Term::Factor(Factor::Unary(Unary::Primary(
-            Primary::String(i1.into().into()),
+            Primary::String(StringLiteral::new_string(i1.into(), Location::default())),
         ))));
         let right = Term::Factor(Factor::Unary(Unary::Primary(Primary::String(
-            i2.into().into(),
+            StringLiteral::new_string(i2.into(), Location::default()),
         ))));
         Comparison::LessEqual {
             left: Box::new(left),
@@ -70,12 +81,16 @@ pub(crate) enum Term {
     Subtraction { left: Box<Term>, right: Factor },
 }
 
+#[cfg(test)]
 impl Term {
     pub(crate) fn string_addition(i1: impl Into<String>, i2: impl Into<String>) -> Self {
         let left = Term::Factor(Factor::Unary(Unary::Primary(Primary::String(
-            i1.into().into(),
+            StringLiteral::new_string(i1.into(), Location::default()),
         ))));
-        let right = Factor::Unary(Unary::Primary(Primary::String(i2.into().into())));
+        let right = Factor::Unary(Unary::Primary(Primary::String(StringLiteral::new_string(
+            i2.into(),
+            Location::default(),
+        ))));
         Term::Addition {
             left: Box::new(left),
             right,
@@ -96,10 +111,17 @@ pub(crate) enum Factor {
     Division { left: Box<Factor>, right: Unary },
 }
 
+#[cfg(test)]
 impl Factor {
     pub(crate) fn string_multiplication(i1: impl Into<String>, i2: impl Into<String>) -> Self {
-        let left = Factor::Unary(Unary::Primary(Primary::String(i1.into().into())));
-        let right = Unary::Primary(Primary::String(i2.into().into()));
+        let left = Factor::Unary(Unary::Primary(Primary::String(StringLiteral::new_string(
+            i1.into(),
+            Location::default(),
+        ))));
+        let right = Unary::Primary(Primary::String(StringLiteral::new_string(
+            i2.into(),
+            Location::default(),
+        )));
         Factor::Multiplication {
             left: Box::new(left),
             right,
@@ -120,9 +142,12 @@ pub(crate) enum Unary {
     ArithmNegation(Box<Unary>),
 }
 
+#[cfg(test)]
 impl Unary {
     pub(crate) fn string_arithm_negation(i: impl Into<String>) -> Self {
-        Unary::ArithmNegation(Box::new(Unary::Primary(Primary::String(i.into().into()))))
+        Unary::ArithmNegation(Box::new(Unary::Primary(Primary::String(
+            StringLiteral::new_string(i.into(), Location::default()),
+        ))))
     }
 }
 
@@ -133,63 +158,3 @@ impl From<Unary> for Expression {
         ))))
     }
 }
-
-#[derive(PartialEq, Eq, Debug)]
-pub(crate) enum Primary {
-    Number(NumLiteral),
-    String(StringLiteral),
-    Identifier(StringLiteral),
-    True,
-    False,
-    Nil,
-    GroupedExpression(Box<Expression>),
-}
-
-impl From<f64> for Expression {
-    fn from(value: f64) -> Self {
-        let num_lit: NumLiteral = value.into();
-        Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Unary(Unary::Primary(Primary::Number(num_lit))),
-        ))))
-    }
-}
-
-impl Primary {
-    pub(crate) fn grouped_expr(expr: Expression) -> Expression {
-        Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Unary(Unary::Primary(Primary::GroupedExpression(Box::new(expr)))),
-        ))))
-    }
-}
-
-#[derive(PartialEq, Eq, Debug)]
-pub(crate) struct StringLiteral(String);
-
-impl AsRef<str> for StringLiteral {
-    fn as_ref(&self) -> &str {
-        &self.0
-    }
-}
-
-impl From<String> for StringLiteral {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-#[derive(PartialEq, Debug)]
-pub(crate) struct NumLiteral(f64);
-
-impl From<f64> for NumLiteral {
-    fn from(value: f64) -> Self {
-        Self(value)
-    }
-}
-
-impl AsRef<f64> for NumLiteral {
-    fn as_ref(&self) -> &f64 {
-        &self.0
-    }
-}
-
-impl Eq for NumLiteral {}

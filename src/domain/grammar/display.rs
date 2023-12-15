@@ -70,9 +70,9 @@ impl Display for Primary {
             Primary::Number(n) => write!(f, "{n}"),
             Primary::String(s) => write!(f, "'{s}'"),
             Primary::Identifier(i) => write!(f, "{i}"),
-            Primary::True => write!(f, "true"),
-            Primary::False => write!(f, "false"),
-            Primary::Nil => write!(f, "nil"),
+            Primary::True(_) => write!(f, "true"),
+            Primary::False(_) => write!(f, "false"),
+            Primary::Nil(_) => write!(f, "nil"),
             Primary::GroupedExpression(e) => write!(f, "(group {e})"),
         }
     }
@@ -92,21 +92,25 @@ impl Display for StringLiteral {
 
 #[cfg(test)]
 mod test {
-    use crate::domain::grammar::{
-        Comparison, Equality, Expression, Factor, NumLiteral, Primary, Term, Unary,
+    use crate::domain::{
+        grammar::{Comparison, Equality, Expression, Factor, NumLiteral, Primary, Term, Unary},
+        location::Location,
     };
 
     #[test]
     fn expression_displayed_correctly() {
         let expected = "(* (- 123) (group 45.67))".to_owned();
         let number = Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Unary(Unary::Primary(Primary::Number(NumLiteral(45.67)))),
+            Factor::Unary(Unary::Primary(Primary::Number(NumLiteral::new(
+                45.67,
+                Location::default(),
+            )))),
         )))); // 45.67
         let grouped_expr = Primary::GroupedExpression(Box::new(number)); // ( 45.67 )
 
         let negated_number = Unary::ArithmNegation(Box::new(Unary::Primary(Primary::Number(
-            NumLiteral(123 as f64),
-        )))); // - 123
+            NumLiteral::new(123.0, Location::default()),
+        )))); // - 123s
 
         let overall = Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
             Factor::Multiplication {

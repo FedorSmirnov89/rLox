@@ -1,6 +1,9 @@
 use anyhow::Result;
 
-use crate::domain::scanning::{Location, Token, TokenType};
+use crate::domain::{
+    location::Location,
+    scanning::{Token, TokenType},
+};
 
 use self::{
     empty::add_char_empty,
@@ -74,7 +77,7 @@ impl Location {
         let s_len = s.len();
         Self {
             column: self.column + s_len as u16,
-            pos: self.pos + s_len as u64,
+            pos: self.pos + s_len,
             ..self
         }
     }

@@ -1,5 +1,8 @@
 use crate::{
-    domain::scanning::{Location, Token, TokenType},
+    domain::{
+        location::Location,
+        scanning::{Token, TokenType},
+    },
     scanner::scan_input,
 };
 
@@ -44,17 +47,17 @@ fn one_char_spaced(c: char, t_type: TokenType) {
     let loc2 = Location {
         column: 1 + "a ".len() as u16,
         line: 1,
-        pos: 0 + "a ".len() as u64,
+        pos: 0 + "a ".len(),
     };
     let loc3 = Location {
         column: 1 + "a ( ".len() as u16,
         line: 1,
-        pos: 0 + "a ( ".len() as u64,
+        pos: 0 + "a ( ".len(),
     };
     let loc4 = Location {
         column: 1 + "a ( b".len() as u16,
         line: 1,
-        pos: 0 + "a ( b".len() as u64,
+        pos: 0 + "a ( b".len(),
     };
     let expected = vec![
         Token::identifier("a", loc1),
@@ -79,17 +82,17 @@ fn one_char_not_spaced(c: char, t_type: TokenType) {
     let loc2 = Location {
         column: 1 + "a".len() as u16,
         line: 1,
-        pos: 0 + "a".len() as u64,
+        pos: 0 + "a".len(),
     };
     let loc3 = Location {
         column: 1 + "a(".len() as u16,
         line: 1,
-        pos: 0 + "a(".len() as u64,
+        pos: 0 + "a(".len(),
     };
     let loc4 = Location {
         column: 1 + "a(b".len() as u16,
         line: 1,
-        pos: 0 + "a(b".len() as u64,
+        pos: 0 + "a(b".len(),
     };
     let expected = vec![
         Token::identifier("a", loc1),

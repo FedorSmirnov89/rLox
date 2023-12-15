@@ -1,7 +1,10 @@
 use claim::assert_matches;
 
 use crate::{
-    domain::scanning::{Location, Token, TokenType},
+    domain::{
+        location::Location,
+        scanning::{Token, TokenType},
+    },
     scanner::scan_input,
 };
 
@@ -55,17 +58,17 @@ fn exact_keyword_recognized(s: &str, t_type: TokenType) {
     let loc2 = Location {
         column: 1 + "a ".len() as u16,
         line: 1,
-        pos: 0 + "a ".len() as u64,
+        pos: 0 + "a ".len(),
     };
     let loc3 = Location {
         column: 1 + format!("a {s} ").len() as u16,
         line: 1,
-        pos: 0 + format!("a {s} ").len() as u64,
+        pos: 0 + format!("a {s} ").len(),
     };
     let loc4 = Location {
         column: 1 + format!("a {s} b").len() as u16,
         line: 1,
-        pos: 0 + format!("a {s} b").len() as u64,
+        pos: 0 + format!("a {s} b").len(),
     };
     let expected = vec![
         Token::identifier("a", loc1),
@@ -94,17 +97,17 @@ fn shorter_keyword_is_identifier(s: &str) {
     let loc2 = Location {
         column: 1 + "a ".len() as u16,
         line: 1,
-        pos: 0 + "a ".len() as u64,
+        pos: 0 + "a ".len(),
     };
     let loc3 = Location {
         column: 1 + format!("a {s} ").len() as u16,
         line: 1,
-        pos: 0 + format!("a {s} ").len() as u64,
+        pos: 0 + format!("a {s} ").len(),
     };
     let loc4 = Location {
         column: 1 + format!("a {s} b").len() as u16,
         line: 1,
-        pos: 0 + format!("a {s} b").len() as u64,
+        pos: 0 + format!("a {s} b").len(),
     };
     let expected = vec![
         Token::identifier("a", loc1),
@@ -132,12 +135,12 @@ fn longer_keyword_is_identifier(s: &str) {
     let loc2 = Location {
         column: 1 + "a ".len() as u16,
         line: 1,
-        pos: 0 + "a ".len() as u64,
+        pos: 0 + "a ".len(),
     };
     let loc3 = Location {
         column: 1 + format!("a {s}b").len() as u16,
         line: 1,
-        pos: 0 + format!("a {s}b").len() as u64,
+        pos: 0 + format!("a {s}b").len(),
     };
     let expected = vec![
         Token::identifier("a", loc1),

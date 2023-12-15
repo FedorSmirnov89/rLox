@@ -38,18 +38,15 @@ mod test {
     use crate::{
         domain::{
             grammar::{Expression, Factor},
-            scanning::{Location, Token, TokenType},
+            location::Location,
+            scanning::{Token, TokenType},
         },
         parser::parse,
     };
 
     #[test]
     fn simple_factor() {
-        let loc = Location {
-            column: 0,
-            line: 0,
-            pos: 0,
-        };
+        let loc = Location::default();
 
         let input = vec![
             Token::string("a", loc),

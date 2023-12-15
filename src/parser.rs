@@ -122,14 +122,15 @@ impl<'tokens> Parser<'tokens> {
 mod test {
     use crate::domain::{
         grammar::{Equality, Expression},
-        scanning::{Location, Token, TokenType},
+        location::Location,
+        scanning::{Token, TokenType},
     };
 
     use super::parse;
 
     #[test]
     fn matches_basic() {
-        use crate::domain::scanning::{Location, TokenType};
+        use crate::domain::scanning::TokenType;
 
         let location = Location {
             column: 0,
@@ -143,7 +144,7 @@ mod test {
 
     #[test]
     fn matches_multi() {
-        use crate::domain::scanning::{Location, TokenType};
+        use crate::domain::scanning::TokenType;
 
         let location = Location {
             column: 0,
@@ -167,11 +168,7 @@ mod test {
 
     #[test]
     fn simple_equality_check() {
-        let loc = Location {
-            column: 0,
-            line: 0,
-            pos: 0,
-        };
+        let loc = Location::default();
 
         let input = vec![
             Token::string("a", loc),

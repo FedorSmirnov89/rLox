@@ -1,6 +1,9 @@
 use std::fmt::Display;
 
-use crate::domain::scanning::{Location, Token, TokenType};
+use crate::domain::{
+    location::Location,
+    scanning::{Token, TokenType},
+};
 
 use super::scan_input;
 

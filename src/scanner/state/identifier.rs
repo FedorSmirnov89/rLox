@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 
-use crate::domain::scanning::{Location, Token};
+use crate::domain::{location::Location, scanning::Token};
 
 use super::{state_changed, switch_state, ClipBoard};
 

@@ -1,5 +1,8 @@
 use crate::{
-    domain::scanning::{Location, Token, TokenType},
+    domain::{
+        location::Location,
+        scanning::{Token, TokenType},
+    },
     scanner::scan_input,
 };
 

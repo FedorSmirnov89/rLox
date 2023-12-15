@@ -1,6 +1,9 @@
 use anyhow::Result;
 
-use crate::domain::scanning::{Location, Token, TokenType};
+use crate::domain::{
+    location::Location,
+    scanning::{Token, TokenType},
+};
 
 use super::{switch_state, ClipBoard};
 
