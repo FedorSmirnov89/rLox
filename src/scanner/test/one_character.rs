@@ -60,9 +60,9 @@ fn one_char_spaced(c: char, t_type: TokenType) {
         pos: 0 + "a ( b".len(),
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_char(t_type, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
 
@@ -95,9 +95,9 @@ fn one_char_not_spaced(c: char, t_type: TokenType) {
         pos: 0 + "a(b".len(),
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_char(t_type, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
 
@@ -142,7 +142,7 @@ fn tokens_different_braces() {
     let expected = vec![
         Token::one_char(TokenType::ParenLeft, loc1),
         Token::one_char(TokenType::BraceLeft, loc2),
-        Token::identifier("abc", loc3),
+        Token::keyword_or_identifier("abc", loc3),
         Token::one_char(TokenType::BraceRight, loc4),
         Token::one_char(TokenType::ParenRight, loc5),
         Token::eof(loc6),
@@ -177,7 +177,7 @@ fn tokens_left_bracket() {
     };
     let expected = vec![
         Token::one_char(TokenType::ParenLeft, loc1),
-        Token::identifier("abc", loc2),
+        Token::keyword_or_identifier("abc", loc2),
         Token::one_char(TokenType::ParenRight, loc3),
         Token::eof(loc4),
     ];
@@ -211,7 +211,7 @@ fn tokens_braces() {
     };
     let expected = vec![
         Token::one_char(TokenType::BraceLeft, loc1),
-        Token::identifier("ab", loc2),
+        Token::keyword_or_identifier("ab", loc2),
         Token::one_char(TokenType::BraceRight, loc3),
         Token::eof(loc4),
     ];

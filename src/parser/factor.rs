@@ -37,11 +37,11 @@ mod test {
 
     use crate::{
         domain::{
-            grammar::{Expression, Factor},
+            grammar::Factor,
             location::Location,
             scanning::{Token, TokenType},
         },
-        parser::parse,
+        parser::{assert_expression, parse},
     };
 
     #[test]
@@ -52,14 +52,13 @@ mod test {
             Token::string("a", loc),
             Token::one_char(TokenType::Star, loc),
             Token::string("b", loc),
+            Token::semicolon(loc),
             Token::eof(loc),
         ];
 
         let output = parse(input).expect("failed to parse");
 
         let expected_factor = Factor::string_multiplication("a", "b");
-        let expected: Vec<Expression> = vec![expected_factor.into()];
-
-        assert_eq!(expected, output);
+        assert_expression(output, expected_factor.into());
     }
 }

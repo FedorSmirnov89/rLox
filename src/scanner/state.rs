@@ -130,7 +130,7 @@ impl State {
             ClipBoard::Identifier(chars) => {
                 let location = self.location;
                 self.location = self.location.advance_str(&chars);
-                Some(Token::identifier(chars, location))
+                Some(Token::keyword_or_identifier(chars, location))
             }
             ClipBoard::Bang => self.extract_one_two_char(TokenType::Bang),
             ClipBoard::Less => self.extract_one_two_char(TokenType::Less),

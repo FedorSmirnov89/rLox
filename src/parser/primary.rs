@@ -78,7 +78,7 @@ mod test {
             location::Location,
             scanning::{Token, TokenType},
         },
-        parser::parse,
+        parser::{assert_expression, parse},
     };
 
     #[test]
@@ -89,6 +89,7 @@ mod test {
             Token::one_char(TokenType::ParenLeft, location),
             Token::number("42", location),
             Token::one_char(TokenType::ParenRight, location),
+            Token::semicolon(location),
             Token::eof(location),
         ];
 
@@ -96,8 +97,7 @@ mod test {
 
         let expected_inner: Expression = 42.0.into();
         let expected_group = Primary::grouped_expr(expected_inner);
-
-        assert_eq!(vec![expected_group], output);
+        assert_expression(output, expected_group);
     }
 
     #[test]

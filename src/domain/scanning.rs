@@ -13,7 +13,7 @@ impl Token {
         Self { t_type, location }
     }
 
-    pub fn identifier(chars: impl Into<String>, location: Location) -> Self {
+    pub fn keyword_or_identifier(chars: impl Into<String>, location: Location) -> Self {
         let chars = chars.into();
         dbg!(&chars);
 
@@ -38,6 +38,13 @@ impl Token {
         };
 
         Self { t_type, location }
+    }
+
+    pub fn semicolon(location: Location) -> Self {
+        Self {
+            t_type: TokenType::Semicolon,
+            location,
+        }
     }
 
     pub fn string(chars: impl Into<String>, location: Location) -> Self {

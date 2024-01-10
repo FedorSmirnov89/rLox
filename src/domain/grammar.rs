@@ -1,10 +1,29 @@
 mod display;
 
+use std::ops::Deref;
+
 pub(crate) mod primary;
 pub(crate) use primary::*;
 
 #[cfg(test)]
 use super::location::Location;
+
+#[derive(Debug)]
+pub(crate) struct Program(pub(crate) Vec<Statement>);
+
+impl Deref for Program {
+    type Target = [Statement];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum Statement {
+    Expression(Expression),
+    Print(Expression),
+}
 
 #[derive(PartialEq, Eq, Debug)]
 pub(crate) enum Expression {

@@ -48,11 +48,11 @@ impl<'tokens> Parser<'tokens> {
 mod test {
     use crate::{
         domain::{
-            grammar::{Comparison, Expression},
+            grammar::Comparison,
             location::Location,
             scanning::{Token, TokenType},
         },
-        parser::parse,
+        parser::{assert_expression, parse},
     };
 
     #[test]
@@ -63,14 +63,13 @@ mod test {
             Token::string("a", loc),
             Token::one_two_char(TokenType::LessEqual, loc),
             Token::string("b", loc),
+            Token::semicolon(loc),
             Token::eof(loc),
         ];
 
         let output = parse(input).expect("failed to parse");
 
         let expected_comp = Comparison::string_less_equal("a", "b");
-        let expected: Vec<Expression> = vec![expected_comp.into()];
-
-        assert_eq!(expected, output);
+        assert_expression(output, expected_comp.into());
     }
 }

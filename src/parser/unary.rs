@@ -34,11 +34,11 @@ mod test {
 
     use crate::{
         domain::{
-            grammar::{Expression, Unary},
+            grammar::Unary,
             location::Location,
             scanning::{Token, TokenType},
         },
-        parser::parse,
+        parser::{assert_expression, parse},
     };
 
     #[test]
@@ -48,12 +48,12 @@ mod test {
         let input = vec![
             Token::one_char(TokenType::Minus, loc),
             Token::string("a", loc),
+            Token::semicolon(loc),
             Token::eof(loc),
         ];
 
         let expected_unary = Unary::string_arithm_negation("a");
-        let expected: Vec<Expression> = vec![expected_unary.into()];
         let output = parse(input).expect("failed to parse");
-        assert_eq!(output, expected);
+        assert_expression(output, expected_unary.into());
     }
 }

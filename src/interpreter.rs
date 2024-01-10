@@ -2,7 +2,10 @@ use std::fmt::Display;
 
 use anyhow::Result;
 
-use crate::domain::{grammar::Expression, location::CodeSpan};
+use crate::domain::{
+    grammar::{Program, Statement},
+    location::CodeSpan,
+};
 
 use self::error::InterpreterError;
 
@@ -65,12 +68,15 @@ impl Display for ValueType {
     }
 }
 
-pub(crate) fn interpret(expressions: Vec<Expression>) -> Result<Value, Vec<InterpreterError>> {
-    if expressions.len() != 1 {
-        unimplemented!("Only working with one expression at a time for now");
+pub(crate) fn interpret(program: Program) -> Result<Value, Vec<InterpreterError>> {
+    if program.len() != 1 {
+        unimplemented!("Only working with one statement at a time for now");
     }
 
-    let expr = expressions.into_iter().next().unwrap();
+    let expr = match &program[0] {
+        Statement::Expression(e) => e,
+        Statement::Print(_) => todo!("print statement"),
+    };
 
     match expr.interpret() {
         Ok(v) => Ok(v),

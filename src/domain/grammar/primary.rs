@@ -63,7 +63,8 @@ impl StringLiteral {
         Self { value, span }
     }
 
-    pub(crate) fn new_string(value: String, start: Location) -> Self {
+    pub(crate) fn new_string(value: impl Into<String>, start: Location) -> Self {
+        let value = value.into();
         let end = start.shifted(value.len() + 2);
         let span = CodeSpan { start, end };
         Self::new(value, span)

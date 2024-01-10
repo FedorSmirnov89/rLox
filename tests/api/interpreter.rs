@@ -27,10 +27,10 @@ macro_rules! it_interpreter {
             #[test]
             fn  [<$fn_name>]() {
                 // Arrange
-                let input = $input;
+                let input = format!("{};", $input);
                 let mut test_app = TestApp::spawn();
                 // Act
-                let output = test_app.process_input(input);
+                let output = test_app.process_input(&input);
                 // Assert
                 assert_ok!(&output);
                 assert_eq!($expected, output.unwrap().v_type);
@@ -45,10 +45,10 @@ macro_rules! it_interpreter_err {
             #[test]
             fn  [<$fn_name "_err">]() {
                 // Arrange
-                let input = $input;
+                let input = format!("{};", $input);
                 let mut test_app = TestApp::spawn();
                 // Act
-                let output = test_app.process_input(input);
+                let output = test_app.process_input(&input);
                 // Assert
                 assert_err!(&output);
             }

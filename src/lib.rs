@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use domain::grammar::Expression;
+use domain::grammar::Statement;
 use std::fmt::Write;
 
 pub mod domain;
@@ -79,10 +79,10 @@ impl Interpreter {
     pub fn interpret_src_str(&mut self, source_str: &str) -> Result<Value, Vec<anyhow::Error>> {
         println!("interpreting the following: '{source_str}'");
         let tokens = scan_input(source_str)?;
-        let expressions = parser::parse(tokens)?;
-        print_ast(&expressions);
+        let program = parser::parse(tokens)?;
+        print_ast(&program);
 
-        match interpreter::interpret(expressions) {
+        match interpreter::interpret(program) {
             Ok(value) => Ok(value),
             Err(errors) => {
                 let mut interpreter_errors = vec![];
@@ -96,9 +96,13 @@ impl Interpreter {
     }
 }
 
-fn print_ast(expressions: &[Expression]) {
+fn print_ast(statements: &[Statement]) {
     println!("here is the AST we got: ");
-    for expr in expressions {
+    for s in statements {
+        let expr = match s {
+            Statement::Expression(e) => e,
+            Statement::Print(e) => e,
+        };
         println!("{}", expr);
     }
 }
