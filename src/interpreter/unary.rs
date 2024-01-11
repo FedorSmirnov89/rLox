@@ -1,13 +1,13 @@
 use crate::{domain::grammar::Unary, operator_error, Value};
 
-use super::{error::InterpreterError, Interpretation, ValueType};
+use super::{error::InterpreterError, InterpretatedExpression, ValueType};
 
-impl Interpretation for Unary {
-    fn interpret(&self) -> Result<Value, InterpreterError> {
+impl InterpretatedExpression for Unary {
+    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
-            Unary::Primary(p) => p.interpret(),
+            Unary::Primary(p) => p.interpret_expression(),
             Unary::LogicalNegation(u) => {
-                let val = u.interpret()?;
+                let val = u.interpret_expression()?;
                 match &val.v_type {
                     ValueType::Boolean(b) => Ok(Value::new(
                         ValueType::Boolean(!b),
@@ -19,7 +19,7 @@ impl Interpretation for Unary {
                 }
             }
             Unary::ArithmNegation(u) => {
-                let val = u.interpret()?;
+                let val = u.interpret_expression()?;
                 match &val.v_type {
                     ValueType::Number(n) => Ok(Value::new(
                         ValueType::Number(-n),

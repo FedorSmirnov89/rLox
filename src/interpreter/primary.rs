@@ -5,10 +5,10 @@ use crate::{
     Value,
 };
 
-use super::{error::InterpreterError, Interpretation, ValueType};
+use super::{error::InterpreterError, InterpretatedExpression, ValueType};
 
-impl Interpretation for Primary {
-    fn interpret(&self) -> Result<Value, InterpreterError> {
+impl InterpretatedExpression for Primary {
+    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         let val = match self {
             Primary::Number(NumLiteral { value, span }) => {
                 Value::new(ValueType::Number(*value), *span)
@@ -19,7 +19,7 @@ impl Interpretation for Primary {
             Primary::True(span) => Value::new(ValueType::Boolean(true), *span),
             Primary::False(span) => Value::new(ValueType::Boolean(false), *span),
             Primary::Nil(span) => Value::new(ValueType::Nil, *span),
-            Primary::GroupedExpression(expr) => expr.interpret()?,
+            Primary::GroupedExpression(expr) => expr.interpret_expression()?,
             Primary::Identifier(_) => todo!(),
         };
         Ok(val)

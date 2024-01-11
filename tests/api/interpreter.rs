@@ -33,7 +33,7 @@ macro_rules! it_interpreter {
                 let output = test_app.process_input(&input);
                 // Assert
                 assert_ok!(&output);
-                assert_eq!($expected, output.unwrap().v_type);
+                assert_eq!($expected, output.unwrap().unwrap().v_type);
             }
         }
     };

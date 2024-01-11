@@ -3,15 +3,15 @@ use crate::{
     operator_error, Value,
 };
 
-use super::{error::InterpreterError, Interpretation, ValueType};
+use super::{error::InterpreterError, InterpretatedExpression, ValueType};
 
-impl Interpretation for Factor {
-    fn interpret(&self) -> Result<Value, InterpreterError> {
+impl InterpretatedExpression for Factor {
+    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
-            Factor::Unary(u) => u.interpret(),
+            Factor::Unary(u) => u.interpret_expression(),
             Factor::Multiplication { left, right } => {
-                let left_val = left.interpret()?;
-                let right_val = right.interpret()?;
+                let left_val = left.interpret_expression()?;
+                let right_val = right.interpret_expression()?;
 
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(
@@ -24,8 +24,8 @@ impl Interpretation for Factor {
                 }
             }
             Factor::Division { left, right } => {
-                let left_val = left.interpret()?;
-                let right_val = right.interpret()?;
+                let left_val = left.interpret_expression()?;
+                let right_val = right.interpret_expression()?;
 
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(

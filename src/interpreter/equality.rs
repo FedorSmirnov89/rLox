@@ -6,12 +6,12 @@ use crate::{
     operator_error, Value,
 };
 
-use super::{error::InterpreterError, Interpretation, ValueType};
+use super::{error::InterpreterError, InterpretatedExpression, ValueType};
 
-impl Interpretation for Equality {
-    fn interpret(&self) -> Result<Value, InterpreterError> {
+impl InterpretatedExpression for Equality {
+    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
-            Equality::Comparison(c) => c.interpret(),
+            Equality::Comparison(c) => c.interpret_expression(),
             Equality::EqualityCheck { left, right } => operation(left, right, Operator::Equal),
             Equality::InequalityCheck { left, right } => operation(left, right, Operator::NotEqual),
         }
@@ -28,8 +28,8 @@ fn operation(
     right: &Comparison,
     operator: Operator,
 ) -> Result<Value, InterpreterError> {
-    let left_val = left.interpret()?;
-    let right_val = right.interpret()?;
+    let left_val = left.interpret_expression()?;
+    let right_val = right.interpret_expression()?;
 
     let b = match (&left_val.v_type, &right_val.v_type) {
         (ValueType::Number(l), ValueType::Number(r)) => match operator {

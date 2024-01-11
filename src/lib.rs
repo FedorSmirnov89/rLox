@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use domain::grammar::Statement;
+use interpreter::State;
 use std::fmt::Write;
 
 pub mod domain;
@@ -21,8 +22,12 @@ pub fn interpret_lox_file(path: &str) -> Result<()> {
         .with_context(|| format!("error reading in file at '{path}'"))?;
     let mut interpreter = Interpreter::default();
     match interpreter.interpret_src_str(&lox_str) {
-        Ok(v) => {
+        Ok(Some(v)) => {
             println!("file interpreted; evaluation result: {v}");
+            Ok(())
+        }
+        Ok(None) => {
+            println!("file interpreted; no evaluation result");
             Ok(())
         }
         Err(errors) => Err(summarize_errors(errors)?),
@@ -53,9 +58,12 @@ pub fn run_prompt() -> Result<()> {
         }
 
         match interpreter.interpret_src_str(&input) {
-            Ok(v) => {
+            Ok(Some(v)) => {
                 println!("evaluation result: {v}");
                 last_value = v;
+            }
+            Ok(None) => {
+                println!("no evaluation result");
             }
             Err(errors) => {
                 let err_summary = summarize_errors(errors)?;
@@ -70,19 +78,24 @@ pub fn run_prompt() -> Result<()> {
 }
 
 #[derive(Default)]
-pub struct Interpreter {}
+pub struct Interpreter {
+    state: State,
+}
 
 impl Interpreter {
     ///
     /// Interprets the given source string while mutating the current state of the interpreter
     ///
-    pub fn interpret_src_str(&mut self, source_str: &str) -> Result<Value, Vec<anyhow::Error>> {
+    pub fn interpret_src_str(
+        &mut self,
+        source_str: &str,
+    ) -> Result<Option<Value>, Vec<anyhow::Error>> {
         println!("interpreting the following: '{source_str}'");
         let tokens = scan_input(source_str)?;
         let program = parser::parse(tokens)?;
         print_ast(&program);
 
-        match interpreter::interpret(program) {
+        match self.interpret(program) {
             Ok(value) => Ok(value),
             Err(errors) => {
                 let mut interpreter_errors = vec![];

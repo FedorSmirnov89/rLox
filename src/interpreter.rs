@@ -2,9 +2,9 @@ use std::fmt::Display;
 
 use anyhow::Result;
 
-use crate::domain::{
-    grammar::{Program, Statement},
-    location::CodeSpan,
+use crate::{
+    domain::{grammar::Program, location::CodeSpan},
+    Interpreter,
 };
 
 use self::error::InterpreterError;
@@ -16,10 +16,11 @@ mod equality;
 mod expression;
 mod factor;
 mod primary;
+mod statement;
 mod term;
 mod unary;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Value {
     pub v_type: ValueType,
     pub span: CodeSpan,
@@ -31,7 +32,7 @@ impl Value {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ValueType {
     Number(f64),
     String(String),
@@ -68,22 +69,48 @@ impl Display for ValueType {
     }
 }
 
-pub(crate) fn interpret(program: Program) -> Result<Value, Vec<InterpreterError>> {
-    if program.len() != 1 {
-        unimplemented!("Only working with one statement at a time for now");
-    }
+impl Interpreter {
+    pub(crate) fn interpret(
+        &mut self,
+        program: Program,
+    ) -> Result<Option<Value>, Vec<InterpreterError>> {
+        let state = &mut self.state;
+        if program.len() != 1 {
+            unimplemented!("Only working with one statement at a time for now");
+        }
 
-    let expr = match &program[0] {
-        Statement::Expression(e) => e,
-        Statement::Print(_) => todo!("print statement"),
-    };
-
-    match expr.interpret() {
-        Ok(v) => Ok(v),
-        Err(e) => Err(vec![e]),
+        let statement = &program[0];
+        match statement.interpret_statement(state) {
+            Ok(()) => Ok(state.get_value().cloned()),
+            Err(e) => Err(vec![e]),
+        }
     }
 }
 
-trait Interpretation {
-    fn interpret(&self) -> Result<Value, InterpreterError>;
+trait InterpretatedExpression {
+    fn interpret_expression(&self) -> Result<Value, InterpreterError>;
+}
+
+trait InterpretedStatement {
+    fn interpret_statement(&self, state: &mut State) -> Result<(), InterpreterError>;
+}
+
+///
+/// The state of the interpreter:
+///
+/// - The current values of the global variables
+///
+#[derive(Debug, Default)]
+pub(crate) struct State {
+    value: Option<Value>,
+}
+
+impl State {
+    pub fn set_value(&mut self, val: Value) {
+        self.value = Some(val)
+    }
+
+    pub fn get_value(&self) -> Option<&Value> {
+        self.value.as_ref()
+    }
 }

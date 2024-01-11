@@ -2,12 +2,12 @@ use anyhow::Result;
 
 use crate::domain::grammar::Expression;
 
-use super::{error::InterpreterError, Interpretation, Value};
+use super::{error::InterpreterError, InterpretatedExpression, Value};
 
-impl Interpretation for Expression {
-    fn interpret(&self) -> Result<Value, InterpreterError> {
+impl InterpretatedExpression for Expression {
+    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
-            Expression::Equality(eq) => eq.interpret(),
+            Expression::Equality(eq) => eq.interpret_expression(),
         }
     }
 }

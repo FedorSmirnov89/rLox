@@ -3,15 +3,15 @@ use crate::{
     operator_error, Value,
 };
 
-use super::{error::InterpreterError, Interpretation, ValueType};
+use super::{error::InterpreterError, InterpretatedExpression, ValueType};
 
-impl Interpretation for Term {
-    fn interpret(&self) -> Result<Value, InterpreterError> {
+impl InterpretatedExpression for Term {
+    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
-            Term::Factor(f) => f.interpret(),
+            Term::Factor(f) => f.interpret_expression(),
             Term::Addition { left, right } => {
-                let l_val = left.interpret()?;
-                let r_val = right.interpret()?;
+                let l_val = left.interpret_expression()?;
+                let r_val = right.interpret_expression()?;
 
                 match (&l_val.v_type, &r_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(
@@ -28,8 +28,8 @@ impl Interpretation for Term {
                 }
             }
             Term::Subtraction { left, right } => {
-                let left_val = left.interpret()?;
-                let right_val = right.interpret()?;
+                let left_val = left.interpret_expression()?;
+                let right_val = right.interpret_expression()?;
 
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(

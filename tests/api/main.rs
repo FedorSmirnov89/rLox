@@ -16,7 +16,7 @@ impl TestApp {
         }
     }
 
-    fn process_input(&mut self, input: &str) -> Result<Value, Vec<anyhow::Error>> {
+    fn process_input(&mut self, input: &str) -> Result<Option<Value>, Vec<anyhow::Error>> {
         self.interpreter.interpret_src_str(input)
     }
 }
