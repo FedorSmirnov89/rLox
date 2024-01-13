@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use domain::grammar::Statement;
+use domain::grammar::{Declaration, Expression, Program, Statement};
 use interpreter::State;
 use std::fmt::Write;
 
@@ -93,7 +93,10 @@ impl Interpreter {
         println!("interpreting the following: '{source_str}'");
         let tokens = scan_input(source_str)?;
         let program = parser::parse(tokens)?;
-        print_ast(&program);
+
+        if let Some(expr) = single_expression(&program) {
+            print_expr_ast(expr);
+        }
 
         match self.interpret(program) {
             Ok(value) => Ok(value),
@@ -109,15 +112,20 @@ impl Interpreter {
     }
 }
 
-fn print_ast(statements: &[Statement]) {
-    println!("here is the AST we got: ");
-    for s in statements {
-        let expr = match s {
-            Statement::Expression(e) => e,
-            Statement::Print(e) => e,
-        };
-        println!("{}", expr);
+fn single_expression(program: &Program) -> Option<Expression> {
+    if program.len() != 1 {
+        return None;
     }
+
+    match &program[0] {
+        Declaration::Statement(Statement::Expression(e)) => Some(e.clone()),
+        _ => None,
+    }
+}
+
+fn print_expr_ast(expr: Expression) {
+    println!("here is the AST we got: ");
+    println!("{}", expr);
 }
 
 fn summarize_errors(errors: Vec<anyhow::Error>) -> Result<anyhow::Error> {

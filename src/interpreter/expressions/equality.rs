@@ -3,12 +3,13 @@ use crate::{
         grammar::{Comparison, Equality},
         location::CodeSpan,
     },
-    operator_error, Value,
+    interpreter::error::InterpreterError,
+    operator_error, Value, ValueType,
 };
 
-use super::{error::InterpreterError, InterpretatedExpression, ValueType};
+use super::InterpretedExpression;
 
-impl InterpretatedExpression for Equality {
+impl InterpretedExpression for Equality {
     fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
             Equality::Comparison(c) => c.interpret_expression(),

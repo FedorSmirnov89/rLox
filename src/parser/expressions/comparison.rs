@@ -3,16 +3,15 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::Comparison, scanning::TokenType},
     matches_t_type,
+    parser::Parser,
 };
-
-use super::Parser;
 
 impl<'tokens> Parser<'tokens> {
     ///
     /// Reads out a comparison expression from the current position in the token stream.
     /// Also advances the current position in the token stream to the next token after the comparison.
     ///
-    pub(super) fn comparison(&mut self) -> Result<Comparison> {
+    pub(crate) fn comparison(&mut self) -> Result<Comparison> {
         let mut comp = Comparison::Term(self.term()?);
         if let Some(mut current) = self.current() {
             while matches_t_type!(

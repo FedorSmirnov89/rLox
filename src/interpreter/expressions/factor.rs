@@ -1,11 +1,12 @@
 use crate::{
     domain::{grammar::Factor, location::CodeSpan},
-    operator_error, Value,
+    interpreter::error::InterpreterError,
+    operator_error, Value, ValueType,
 };
 
-use super::{error::InterpreterError, InterpretatedExpression, ValueType};
+use super::InterpretedExpression;
 
-impl InterpretatedExpression for Factor {
+impl InterpretedExpression for Factor {
     fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
             Factor::Unary(u) => u.interpret_expression(),

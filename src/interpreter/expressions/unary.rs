@@ -1,8 +1,10 @@
-use crate::{domain::grammar::Unary, operator_error, Value};
+use crate::{
+    domain::grammar::Unary, interpreter::error::InterpreterError, operator_error, Value, ValueType,
+};
 
-use super::{error::InterpreterError, InterpretatedExpression, ValueType};
+use super::InterpretedExpression;
 
-impl InterpretatedExpression for Unary {
+impl InterpretedExpression for Unary {
     fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
             Unary::Primary(p) => p.interpret_expression(),

@@ -1,11 +1,12 @@
 use anyhow::{anyhow, Result};
 
-use crate::domain::{
-    grammar::{NumLiteral, Primary, StringLiteral},
-    scanning::TokenType,
+use crate::{
+    domain::{
+        grammar::{NumLiteral, Primary, StringLiteral},
+        scanning::TokenType,
+    },
+    parser::Parser,
 };
-
-use super::Parser;
 
 impl<'tokens> Parser<'tokens> {
     pub(super) fn primary(&mut self) -> Result<Primary> {

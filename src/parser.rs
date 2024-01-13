@@ -1,15 +1,12 @@
 use anyhow::{anyhow, bail, Result};
 
 use crate::domain::{
-    grammar::{Equality, Expression, Program, Statement},
+    grammar::Program,
     scanning::{Token, TokenType},
 };
 
-mod comparison;
-mod factor;
-mod primary;
-mod term;
-mod unary;
+mod expressions;
+mod statements;
 
 #[macro_export]
 macro_rules! matches_t_type {
@@ -36,11 +33,11 @@ impl<'tokens> Parser<'tokens> {
     }
 
     fn parse(mut self) -> Result<Program, Vec<anyhow::Error>> {
-        let mut statements = vec![];
+        let mut declarations = vec![];
         let mut errors = vec![];
         while self.not_finished() {
-            match self.statement() {
-                Ok(s) => statements.push(s),
+            match self.declaration() {
+                Ok(s) => declarations.push(s),
                 Err(err) => {
                     errors.push(err);
                     self.synchronize();
@@ -48,7 +45,7 @@ impl<'tokens> Parser<'tokens> {
             }
         }
         if errors.is_empty() {
-            Ok(Program(statements))
+            Ok(Program(declarations))
         } else {
             Err(errors)
         }
@@ -56,47 +53,6 @@ impl<'tokens> Parser<'tokens> {
 
     fn not_finished(&self) -> bool {
         &self.current().expect("current pos is out of bounds").t_type != &TokenType::EOF
-    }
-
-    ///
-    /// Reads out an expression; Checks that it is followed by a semicolon. Also advances the current
-    ///
-    fn statement(&mut self) -> Result<Statement> {
-        let statement = if let TokenType::PRINT =
-            self.current().expect("current pos is out of bounds").t_type
-        {
-            self.advance();
-            let expr = self.expression()?;
-            Statement::Print(expr)
-        } else {
-            let expr = self.expression()?;
-            Statement::Expression(expr)
-        };
-        self.expect(&TokenType::Semicolon)?;
-        self.advance();
-        Ok(statement)
-    }
-
-    fn expression(&mut self) -> Result<Expression> {
-        let mut comp = Equality::Comparison(self.comparison()?);
-        if let Some(mut current) = self.current() {
-            while matches_t_type!(current, &TokenType::EqualEqual, &TokenType::BangEqual) {
-                self.advance();
-                let left = Box::new(comp);
-                let right = self.comparison()?;
-                comp = match current.t_type() {
-                    TokenType::EqualEqual => Equality::EqualityCheck { left, right },
-                    TokenType::BangEqual => Equality::InequalityCheck { left, right },
-                    _ => unreachable!(),
-                };
-                if let Some(c) = self.current() {
-                    current = c;
-                } else {
-                    break;
-                }
-            }
-        }
-        Ok(Expression::Equality(comp))
     }
 
     fn current(&self) -> Option<&'tokens Token> {
@@ -138,10 +94,13 @@ impl<'tokens> Parser<'tokens> {
 }
 
 #[cfg(test)]
+use crate::domain::grammar::{Declaration, Expression, Statement};
+
+#[cfg(test)]
 fn assert_expression(program: Program, expected: Expression) {
     assert_eq!(1, program.len());
     match &program[0] {
-        Statement::Expression(e) => assert_eq!(expected, *e),
+        Declaration::Statement(Statement::Expression(e)) => assert_eq!(expected, *e),
         _ => panic!("Expected expression"),
     }
 }
@@ -149,7 +108,10 @@ fn assert_expression(program: Program, expected: Expression) {
 #[cfg(test)]
 mod test {
     use crate::domain::{
-        grammar::{Comparison, Equality, Expression, Factor, Primary, StringLiteral, Term, Unary},
+        grammar::{
+            Comparison, Declaration, Equality, Expression, Factor, Primary, Statement,
+            StringLiteral, Term, Unary,
+        },
         location::Location,
         scanning::{Token, TokenType},
     };
@@ -238,13 +200,13 @@ mod test {
         )));
 
         match &output[0] {
-            crate::domain::grammar::Statement::Expression(expr) => {
+            Declaration::Statement(Statement::Expression(expr)) => {
                 assert_eq!(expected_first_expr, *expr);
             }
             _ => panic!("Expected expression"),
         }
         match &output[1] {
-            crate::domain::grammar::Statement::Print(expr) => {
+            Declaration::Statement(Statement::Print(expr)) => {
                 assert_eq!(expected_second_expr, *expr);
             }
             _ => panic!("Expected print statement"),

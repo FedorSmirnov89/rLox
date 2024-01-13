@@ -1,10 +1,10 @@
 use anyhow::Result;
 
-use crate::domain::grammar::Expression;
+use crate::{domain::grammar::Expression, interpreter::error::InterpreterError, Value};
 
-use super::{error::InterpreterError, InterpretatedExpression, Value};
+use super::InterpretedExpression;
 
-impl InterpretatedExpression for Expression {
+impl InterpretedExpression for Expression {
     fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         match self {
             Expression::Equality(eq) => eq.interpret_expression(),

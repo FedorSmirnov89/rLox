@@ -7,18 +7,12 @@ use crate::{
     Interpreter,
 };
 
-use self::error::InterpreterError;
+use self::{error::InterpreterError, statements::InterpretedStatement};
 
 pub mod error;
 
-mod comparison;
-mod equality;
-mod expression;
-mod factor;
-mod primary;
-mod statement;
-mod term;
-mod unary;
+mod expressions;
+mod statements;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Value {
@@ -79,20 +73,12 @@ impl Interpreter {
             unimplemented!("Only working with one statement at a time for now");
         }
 
-        let statement = &program[0];
-        match statement.interpret_statement(state) {
+        let declaration = &program[0];
+        match declaration.interpret_statement(state) {
             Ok(()) => Ok(state.get_value().cloned()),
             Err(e) => Err(vec![e]),
         }
     }
-}
-
-trait InterpretatedExpression {
-    fn interpret_expression(&self) -> Result<Value, InterpreterError>;
-}
-
-trait InterpretedStatement {
-    fn interpret_statement(&self, state: &mut State) -> Result<(), InterpreterError>;
 }
 
 ///

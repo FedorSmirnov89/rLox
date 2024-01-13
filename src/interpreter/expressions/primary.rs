@@ -2,12 +2,13 @@ use anyhow::Result;
 
 use crate::{
     domain::grammar::{NumLiteral, Primary, StringLiteral},
-    Value,
+    interpreter::error::InterpreterError,
+    Value, ValueType,
 };
 
-use super::{error::InterpreterError, InterpretatedExpression, ValueType};
+use super::InterpretedExpression;
 
-impl InterpretatedExpression for Primary {
+impl InterpretedExpression for Primary {
     fn interpret_expression(&self) -> Result<Value, InterpreterError> {
         let val = match self {
             Primary::Number(NumLiteral { value, span }) => {

@@ -5,7 +5,7 @@ use super::Expression;
 #[cfg(test)]
 use super::{Comparison, Equality, Factor, Term, Unary};
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) enum Primary {
     Number(NumLiteral),
     String(StringLiteral),
@@ -52,7 +52,7 @@ impl Primary {
     }
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) struct StringLiteral {
     pub(crate) value: String,
     pub(crate) span: CodeSpan,
@@ -83,7 +83,7 @@ impl AsRef<str> for StringLiteral {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub(crate) struct NumLiteral {
     pub(crate) value: f64,
     pub(crate) span: CodeSpan,

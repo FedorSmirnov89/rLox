@@ -1,12 +1,12 @@
-use crate::domain::grammar::Statement;
+use crate::{
+    domain::grammar::Statement,
+    interpreter::{error::InterpreterError, expressions::InterpretedExpression, State},
+};
 
-use super::{InterpretatedExpression, InterpretedStatement};
+use super::InterpretedStatement;
 
 impl InterpretedStatement for Statement {
-    fn interpret_statement(
-        &self,
-        state: &mut super::State,
-    ) -> anyhow::Result<(), super::error::InterpreterError> {
+    fn interpret_statement(&self, state: &mut State) -> anyhow::Result<(), InterpreterError> {
         match self {
             Statement::Expression(e) => {
                 let value = e.interpret_expression()?;

@@ -3,9 +3,8 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::Term, scanning::TokenType},
     matches_t_type,
+    parser::Parser,
 };
-
-use super::Parser;
 
 impl<'tokens> Parser<'tokens> {
     ///

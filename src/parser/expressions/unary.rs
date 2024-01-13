@@ -3,9 +3,8 @@ use anyhow::{bail, Result};
 use crate::{
     domain::{grammar::Unary, scanning::TokenType},
     matches_t_type,
+    parser::Parser,
 };
-
-use super::Parser;
 
 impl<'tokens> Parser<'tokens> {
     pub(super) fn unary(&mut self) -> Result<Unary> {
