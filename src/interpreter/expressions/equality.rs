@@ -55,7 +55,7 @@ fn operation(
     };
     let value = Value::new(
         ValueType::Boolean(b),
-        CodeSpan::merged(left_val.span, right_val.span),
+        CodeSpan::merged(left_val.span(), right_val.span()),
     );
     Ok(value)
 }

@@ -7,7 +7,10 @@ pub(crate) enum Declaration {
 }
 
 #[derive(Debug)]
-pub(crate) struct VarDeclaration {}
+pub(crate) enum VarDeclaration {
+    Declare(String),
+    DeclareAndAssign(String, Expression),
+}
 
 #[derive(Debug)]
 pub(crate) enum Statement {

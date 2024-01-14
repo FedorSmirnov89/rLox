@@ -117,9 +117,9 @@ macro_rules! operator_error {
 
         let err = InterpreterError::binary_operator(
             msg,
-            CodeSpan::in_between($left.span, $right.span),
-            $left.span,
-            $right.span,
+            CodeSpan::in_between($left.span(), $right.span()),
+            $left.span(),
+            $right.span(),
         );
         return Err(err);
     };
@@ -132,7 +132,7 @@ macro_rules! operator_error {
             val = $val.v_type,
         );
 
-        let err = InterpreterError::unary_operator(msg, $val.span, $val.span);
+        let err = InterpreterError::unary_operator(msg, $val.span(), $val.span());
         return Err(err);
     };
 }

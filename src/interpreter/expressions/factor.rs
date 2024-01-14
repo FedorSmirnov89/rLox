@@ -17,7 +17,7 @@ impl InterpretedExpression for Factor {
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(
                         ValueType::Number(l * r),
-                        CodeSpan::merged(left_val.span, right_val.span),
+                        CodeSpan::merged(left_val.span(), right_val.span()),
                     )),
                     (_, _) => {
                         operator_error!(left_val, right_val, "*");
@@ -31,7 +31,7 @@ impl InterpretedExpression for Factor {
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(
                         ValueType::Number(l / r),
-                        CodeSpan::merged(left_val.span, right_val.span),
+                        CodeSpan::merged(left_val.span(), right_val.span()),
                     )),
                     (_, _) => {
                         operator_error!(left_val, right_val, "/");

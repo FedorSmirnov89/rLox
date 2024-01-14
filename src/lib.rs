@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use domain::grammar::{Declaration, Expression, Program, Statement};
-use interpreter::State;
 use std::fmt::Write;
 
 pub mod domain;
@@ -13,6 +12,7 @@ mod scanner;
 
 pub use arguments::*;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input};
+pub use interpreter::State;
 pub use interpreter::{Value, ValueType};
 
 use crate::{domain::location::CodeSpan, scanner::scan_input};

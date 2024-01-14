@@ -17,11 +17,11 @@ impl InterpretedExpression for Term {
                 match (&l_val.v_type, &r_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(
                         ValueType::Number(l + r),
-                        CodeSpan::merged(l_val.span, r_val.span),
+                        CodeSpan::merged(l_val.span(), r_val.span()),
                     )),
                     (ValueType::String(l), ValueType::String(r)) => Ok(Value::new(
                         ValueType::String(format!("{}{}", l, r)),
-                        CodeSpan::merged(l_val.span, r_val.span),
+                        CodeSpan::merged(l_val.span(), r_val.span()),
                     )),
                     (_, _) => {
                         operator_error!(l_val, r_val, "+");
@@ -35,7 +35,7 @@ impl InterpretedExpression for Term {
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(
                         ValueType::Number(l - r),
-                        CodeSpan::merged(left_val.span, right_val.span),
+                        CodeSpan::merged(left_val.span(), right_val.span()),
                     )),
                     (_, _) => {
                         operator_error!(left_val, right_val, "-");

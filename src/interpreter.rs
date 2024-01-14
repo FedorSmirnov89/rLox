@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{collections::HashMap, fmt::Display};
 
 use anyhow::Result;
 
@@ -17,12 +17,26 @@ mod statements;
 #[derive(Debug, PartialEq, Clone)]
 pub struct Value {
     pub v_type: ValueType,
-    pub span: CodeSpan,
+    span: Option<CodeSpan>,
 }
 
 impl Value {
     pub fn new(v_type: ValueType, span: CodeSpan) -> Self {
-        Self { v_type, span }
+        Self {
+            v_type,
+            span: Some(span),
+        }
+    }
+
+    pub fn nil() -> Self {
+        Self {
+            v_type: ValueType::Nil,
+            span: None,
+        }
+    }
+
+    pub fn span(&self) -> CodeSpan {
+        self.span.unwrap()
     }
 }
 
@@ -79,6 +93,10 @@ impl Interpreter {
             Err(e) => Err(vec![e]),
         }
     }
+
+    pub fn state(&self) -> &State {
+        &self.state
+    }
 }
 
 ///
@@ -87,7 +105,8 @@ impl Interpreter {
 /// - The current values of the global variables
 ///
 #[derive(Debug, Default)]
-pub(crate) struct State {
+pub struct State {
+    values: HashMap<String, Value>,
     value: Option<Value>,
 }
 
@@ -98,5 +117,14 @@ impl State {
 
     pub fn get_value(&self) -> Option<&Value> {
         self.value.as_ref()
+    }
+
+    pub fn set_var_value(&mut self, iden: impl Into<String>, val: Value) {
+        let key = iden.into();
+        self.values.insert(key, val);
+    }
+
+    pub fn get_var_value(&self, iden: &str) -> Option<&Value> {
+        self.values.get(iden)
     }
 }
