@@ -4,21 +4,25 @@ use crate::{
         location::CodeSpan,
     },
     interpreter::error::InterpreterError,
-    operator_error, Value, ValueType,
+    operator_error, State, Value, ValueType,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Comparison {
-    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &State) -> Result<Value, InterpreterError> {
         match self {
-            Comparison::Term(t) => t.interpret_expression(),
-            Comparison::Greater { left, right } => comparison(left, right, Operator::Greater),
-            Comparison::GreaterEqual { left, right } => {
-                comparison(left, right, Operator::GreaterEqual)
+            Comparison::Term(t) => t.interpret_expression(state),
+            Comparison::Greater { left, right } => {
+                comparison(left, right, Operator::Greater, state)
             }
-            Comparison::Less { left, right } => comparison(left, right, Operator::Less),
-            Comparison::LessEqual { left, right } => comparison(left, right, Operator::LessEqual),
+            Comparison::GreaterEqual { left, right } => {
+                comparison(left, right, Operator::GreaterEqual, state)
+            }
+            Comparison::Less { left, right } => comparison(left, right, Operator::Less, state),
+            Comparison::LessEqual { left, right } => {
+                comparison(left, right, Operator::LessEqual, state)
+            }
         }
     }
 }
@@ -34,9 +38,10 @@ fn comparison(
     left: &Box<Comparison>,
     right: &Term,
     operator: Operator,
+    state: &State,
 ) -> Result<Value, InterpreterError> {
-    let left_val = left.interpret_expression()?;
-    let right_val = right.interpret_expression()?;
+    let left_val = left.interpret_expression(state)?;
+    let right_val = right.interpret_expression(state)?;
 
     let b = match (&left_val.v_type, &right_val.v_type) {
         (ValueType::Number(l), ValueType::Number(r)) => match operator {

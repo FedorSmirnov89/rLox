@@ -78,19 +78,26 @@ impl Display for ValueType {
 }
 
 impl Interpreter {
+    ///
+    /// Interprets the given program. If the last statement is an expression, the value of that
+    /// expression is returned.
+    ///
     pub(crate) fn interpret(
         &mut self,
         program: Program,
     ) -> Result<Option<Value>, Vec<InterpreterError>> {
         let state = &mut self.state;
-        if program.len() != 1 {
-            unimplemented!("Only working with one statement at a time for now");
+        let mut errors = vec![];
+        for decl in program.into_iter() {
+            match decl.interpret_statement(state) {
+                Ok(()) => (),
+                Err(e) => errors.push(e),
+            }
         }
-
-        let declaration = &program[0];
-        match declaration.interpret_statement(state) {
-            Ok(()) => Ok(state.get_value().cloned()),
-            Err(e) => Err(vec![e]),
+        if errors.is_empty() {
+            Ok(state.get_tmp_value().cloned())
+        } else {
+            Err(errors)
         }
     }
 
@@ -107,16 +114,16 @@ impl Interpreter {
 #[derive(Debug, Default)]
 pub struct State {
     values: HashMap<String, Value>,
-    value: Option<Value>,
+    tmp_value: Option<Value>,
 }
 
 impl State {
-    pub fn set_value(&mut self, val: Value) {
-        self.value = Some(val)
+    pub fn set_tmp_value(&mut self, val: Value) {
+        self.tmp_value = Some(val)
     }
 
-    pub fn get_value(&self) -> Option<&Value> {
-        self.value.as_ref()
+    pub fn get_tmp_value(&self) -> Option<&Value> {
+        self.tmp_value.as_ref()
     }
 
     pub fn set_var_value(&mut self, iden: impl Into<String>, val: Value) {

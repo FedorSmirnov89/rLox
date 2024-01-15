@@ -15,7 +15,7 @@ impl InterpretedStatement for VarDeclaration {
 
         let value = match self {
             VarDeclaration::Declare(_) => Value::nil(),
-            VarDeclaration::DeclareAndAssign(_, e) => e.interpret_expression()?,
+            VarDeclaration::DeclareAndAssign(_, e) => e.interpret_expression(state)?,
         };
 
         state.set_var_value(iden, value);

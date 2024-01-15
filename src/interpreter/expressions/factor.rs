@@ -1,18 +1,18 @@
 use crate::{
     domain::{grammar::Factor, location::CodeSpan},
     interpreter::error::InterpreterError,
-    operator_error, Value, ValueType,
+    operator_error, State, Value, ValueType,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Factor {
-    fn interpret_expression(&self) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &State) -> Result<Value, InterpreterError> {
         match self {
-            Factor::Unary(u) => u.interpret_expression(),
+            Factor::Unary(u) => u.interpret_expression(state),
             Factor::Multiplication { left, right } => {
-                let left_val = left.interpret_expression()?;
-                let right_val = right.interpret_expression()?;
+                let left_val = left.interpret_expression(state)?;
+                let right_val = right.interpret_expression(state)?;
 
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(
@@ -25,8 +25,8 @@ impl InterpretedExpression for Factor {
                 }
             }
             Factor::Division { left, right } => {
-                let left_val = left.interpret_expression()?;
-                let right_val = right.interpret_expression()?;
+                let left_val = left.interpret_expression(state)?;
+                let right_val = right.interpret_expression(state)?;
 
                 match (&left_val.v_type, &right_val.v_type) {
                     (ValueType::Number(l), ValueType::Number(r)) => Ok(Value::new(

@@ -6,6 +6,7 @@ use crate::domain::location::CodeSpan;
 pub enum InterpreterError {
     BinaryOperatorError(BinaryOperatorError),
     UnaryOperatorError(UnaryOperatorError),
+    IdentifierNotDefinedError, // TODO: add nice error message + test
 }
 
 impl InterpreterError {
@@ -35,6 +36,7 @@ impl InterpreterError {
         match self {
             Self::BinaryOperatorError(e) => e.msg(src_str),
             Self::UnaryOperatorError(e) => e.msg(src_str),
+            Self::IdentifierNotDefinedError => "identifier not defined".to_string(),
         }
     }
 }

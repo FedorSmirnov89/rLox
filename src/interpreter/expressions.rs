@@ -1,4 +1,4 @@
-use crate::Value;
+use crate::{State, Value};
 
 use super::error::InterpreterError;
 
@@ -11,5 +11,5 @@ mod term;
 mod unary;
 
 pub(crate) trait InterpretedExpression {
-    fn interpret_expression(&self) -> Result<Value, InterpreterError>;
+    fn interpret_expression(&self, state: &State) -> Result<Value, InterpreterError>;
 }
