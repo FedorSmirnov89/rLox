@@ -6,7 +6,7 @@ use crate::domain::location::CodeSpan;
 pub enum InterpreterError {
     BinaryOperatorError(BinaryOperatorError),
     UnaryOperatorError(UnaryOperatorError),
-    IdentifierNotDefinedError, // TODO: add nice error message + test
+    IdentifierNotDefinedError(IdentifierNotDefinedError),
 }
 
 impl InterpreterError {
@@ -32,12 +32,33 @@ impl InterpreterError {
         })
     }
 
+    pub fn identifier_not_defined(iden: impl Into<String>, span: CodeSpan) -> Self {
+        let iden = iden.into();
+        Self::IdentifierNotDefinedError(IdentifierNotDefinedError { iden, span })
+    }
+
     pub fn msg(self, src_str: &str) -> String {
         match self {
             Self::BinaryOperatorError(e) => e.msg(src_str),
             Self::UnaryOperatorError(e) => e.msg(src_str),
-            Self::IdentifierNotDefinedError => "identifier not defined".to_string(),
+            Self::IdentifierNotDefinedError(e) => e.msg(),
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct IdentifierNotDefinedError {
+    pub iden: String,
+    pub span: CodeSpan,
+}
+
+impl IdentifierNotDefinedError {
+    fn msg(self) -> String {
+        format!(
+            "identifier '{iden}' (used in line {l}) not defined",
+            iden = self.iden,
+            l = self.span.start.line
+        )
     }
 }
 
