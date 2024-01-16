@@ -1,12 +1,12 @@
 use crate::{
-    domain::grammar::Unary, interpreter::error::InterpreterError, operator_error, State, Value,
-    ValueType,
+    domain::grammar::Unary, interpreter::error::InterpreterError, operator_error, Environment,
+    Value, ValueType,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Unary {
-    fn interpret_expression(&self, state: &State) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
         match self {
             Unary::Primary(p) => p.interpret_expression(state),
             Unary::LogicalNegation(u) => {

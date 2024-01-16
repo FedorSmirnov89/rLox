@@ -86,23 +86,23 @@ impl Interpreter {
         &mut self,
         program: Program,
     ) -> Result<Option<Value>, Vec<InterpreterError>> {
-        let state = &mut self.state;
+        let environment = &mut self.environment;
         let mut errors = vec![];
         for decl in program.into_iter() {
-            match decl.interpret_statement(state) {
+            match decl.interpret_statement(environment) {
                 Ok(()) => (),
                 Err(e) => errors.push(e),
             }
         }
         if errors.is_empty() {
-            Ok(state.get_tmp_value().cloned())
+            Ok(environment.get_tmp_value().cloned())
         } else {
             Err(errors)
         }
     }
 
-    pub fn state(&self) -> &State {
-        &self.state
+    pub fn environment(&self) -> &Environment {
+        &self.environment
     }
 }
 
@@ -112,12 +112,12 @@ impl Interpreter {
 /// - The current values of the global variables
 ///
 #[derive(Debug, Default)]
-pub struct State {
+pub struct Environment {
     values: HashMap<String, Value>,
     tmp_value: Option<Value>,
 }
 
-impl State {
+impl Environment {
     pub fn set_tmp_value(&mut self, val: Value) {
         self.tmp_value = Some(val)
     }

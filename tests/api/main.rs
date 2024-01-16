@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rlox::{Interpreter, State, Value};
+use rlox::{Environment, Interpreter, Value};
 
 mod interpreter;
 mod parser;
@@ -20,7 +20,7 @@ impl TestApp {
         self.interpreter.interpret_src_str(input)
     }
 
-    fn interpreter_state(&self) -> &State {
-        &self.interpreter.state()
+    fn interpreter_state(&self) -> &Environment {
+        &self.interpreter.environment()
     }
 }

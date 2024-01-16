@@ -12,7 +12,7 @@ mod scanner;
 
 pub use arguments::*;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input};
-pub use interpreter::State;
+pub use interpreter::Environment;
 pub use interpreter::{Value, ValueType};
 
 use crate::{domain::location::CodeSpan, scanner::scan_input};
@@ -79,7 +79,7 @@ pub fn run_prompt() -> Result<()> {
 
 #[derive(Default)]
 pub struct Interpreter {
-    state: State,
+    environment: Environment,
 }
 
 impl Interpreter {

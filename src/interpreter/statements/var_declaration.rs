@@ -1,13 +1,13 @@
 use crate::{
     domain::grammar::VarDeclaration,
     interpreter::{error::InterpreterError, expressions::InterpretedExpression},
-    State, Value,
+    Environment, Value,
 };
 
 use super::InterpretedStatement;
 
 impl InterpretedStatement for VarDeclaration {
-    fn interpret_statement(&self, state: &mut State) -> Result<(), InterpreterError> {
+    fn interpret_statement(&self, state: &mut Environment) -> Result<(), InterpreterError> {
         let iden = match self {
             VarDeclaration::Declare(i) => i,
             VarDeclaration::DeclareAndAssign(i, _) => i,

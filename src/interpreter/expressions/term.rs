@@ -1,13 +1,13 @@
 use crate::{
     domain::{grammar::Term, location::CodeSpan},
     interpreter::error::InterpreterError,
-    operator_error, State, Value, ValueType,
+    operator_error, Environment, Value, ValueType,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Term {
-    fn interpret_expression(&self, state: &State) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
         match self {
             Term::Factor(f) => f.interpret_expression(state),
             Term::Addition { left, right } => {

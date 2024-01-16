@@ -1,13 +1,13 @@
 use crate::{
     domain::{grammar::Factor, location::CodeSpan},
     interpreter::error::InterpreterError,
-    operator_error, State, Value, ValueType,
+    operator_error, Environment, Value, ValueType,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Factor {
-    fn interpret_expression(&self, state: &State) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
         match self {
             Factor::Unary(u) => u.interpret_expression(state),
             Factor::Multiplication { left, right } => {
