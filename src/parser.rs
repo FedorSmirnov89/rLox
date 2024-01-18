@@ -55,8 +55,16 @@ impl<'tokens> Parser<'tokens> {
         &self.current().expect("current pos is out of bounds").t_type != &TokenType::EOF
     }
 
-    fn current(&self) -> Option<&'tokens Token> {
-        self.tokens.get(self.cur_pos)
+    fn current(&self) -> Result<&'tokens Token> {
+        self.tokens.get(self.cur_pos).ok_or(anyhow!(
+            "Unexpected end of token stream when looking at current"
+        ))
+    }
+
+    fn next(&self) -> Result<&'tokens Token> {
+        self.tokens.get(self.cur_pos + 1).ok_or(anyhow!(
+            "Unexpected end of token stream when looking at next"
+        ))
     }
 
     fn synchronize(&mut self) {
@@ -76,19 +84,16 @@ impl<'tokens> Parser<'tokens> {
     }
 
     fn expect(&mut self, t_type: &TokenType) -> Result<()> {
-        if let Some(current) = self.current() {
-            if matches_t_type!(current, t_type) {
-                Ok(())
-            } else {
-                bail!(
-                    "Expected token type {:?} but got {:?}; Token location: {loc}",
-                    t_type,
-                    current.t_type(),
-                    loc = current.location()
-                )
-            }
+        let current = self.current()?;
+        if matches_t_type!(current, t_type) {
+            Ok(())
         } else {
-            Err(anyhow!("Unexpected end of token stream"))
+            bail!(
+                "Expected token type {:?} but got {:?}; Token location: {loc}",
+                t_type,
+                current.t_type(),
+                loc = current.location()
+            )
         }
     }
 }

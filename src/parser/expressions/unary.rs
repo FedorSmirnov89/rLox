@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::Result;
 
 use crate::{
     domain::{grammar::Unary, scanning::TokenType},
@@ -8,21 +8,18 @@ use crate::{
 
 impl<'tokens> Parser<'tokens> {
     pub(super) fn unary(&mut self) -> Result<Unary> {
-        if let Some(current) = self.current() {
-            if matches_t_type!(current, &TokenType::Bang, &TokenType::Minus) {
-                self.advance();
-                let unary = match current.t_type() {
-                    TokenType::Bang => Unary::LogicalNegation(Box::new(self.unary()?)),
-                    TokenType::Minus => Unary::ArithmNegation(Box::new(self.unary()?)),
-                    _ => unreachable!(),
-                };
-                Ok(unary)
-            } else {
-                let primary = Unary::Primary(self.primary()?);
-                Ok(primary)
-            }
+        let current = self.current()?;
+        if matches_t_type!(current, &TokenType::Bang, &TokenType::Minus) {
+            self.advance();
+            let unary = match current.t_type() {
+                TokenType::Bang => Unary::LogicalNegation(Box::new(self.unary()?)),
+                TokenType::Minus => Unary::ArithmNegation(Box::new(self.unary()?)),
+                _ => unreachable!(),
+            };
+            Ok(unary)
         } else {
-            bail!("Unexpected end when parsing a unary");
+            let primary = Unary::Primary(self.primary()?);
+            Ok(primary)
         }
     }
 }

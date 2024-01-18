@@ -23,12 +23,7 @@ impl InterpretedExpression for Primary {
             Primary::GroupedExpression(expr) => expr.interpret_expression(state)?,
             Primary::Identifier(iden) => match state.get_var_value(iden.as_ref()) {
                 Some(v) => v.clone(),
-                None => {
-                    return Err(InterpreterError::identifier_not_defined(
-                        iden.as_ref(),
-                        iden.span,
-                    ))
-                }
+                None => return Err(InterpreterError::identifier_not_defined(iden.clone())),
             },
         };
         Ok(val)

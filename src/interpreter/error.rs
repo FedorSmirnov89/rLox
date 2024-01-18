@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::domain::location::CodeSpan;
+use crate::domain::{grammar::StringLiteral, location::CodeSpan};
 
 #[derive(Debug)]
 pub enum InterpreterError {
@@ -32,9 +32,8 @@ impl InterpreterError {
         })
     }
 
-    pub fn identifier_not_defined(iden: impl Into<String>, span: CodeSpan) -> Self {
-        let iden = iden.into();
-        Self::IdentifierNotDefinedError(IdentifierNotDefinedError { iden, span })
+    pub fn identifier_not_defined(iden: StringLiteral) -> Self {
+        Self::IdentifierNotDefinedError(IdentifierNotDefinedError { iden })
     }
 
     pub fn msg(self, src_str: &str) -> String {
@@ -48,8 +47,7 @@ impl InterpreterError {
 
 #[derive(Debug)]
 pub struct IdentifierNotDefinedError {
-    pub iden: String,
-    pub span: CodeSpan,
+    pub iden: StringLiteral,
 }
 
 impl IdentifierNotDefinedError {
@@ -57,7 +55,7 @@ impl IdentifierNotDefinedError {
         format!(
             "identifier '{iden}' (used in line {l}) not defined",
             iden = self.iden,
-            l = self.span.start.line
+            l = self.iden.span.start.line
         )
     }
 }

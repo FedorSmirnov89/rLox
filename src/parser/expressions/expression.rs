@@ -12,7 +12,7 @@ use crate::{
 impl<'tokens> Parser<'tokens> {
     pub(crate) fn expression(&mut self) -> Result<Expression> {
         let mut comp = Equality::Comparison(self.comparison()?);
-        if let Some(mut current) = self.current() {
+        if let Ok(mut current) = self.current() {
             while matches_t_type!(current, &TokenType::EqualEqual, &TokenType::BangEqual) {
                 self.advance();
                 let left = Box::new(comp);
@@ -22,7 +22,7 @@ impl<'tokens> Parser<'tokens> {
                     TokenType::BangEqual => Equality::InequalityCheck { left, right },
                     _ => unreachable!(),
                 };
-                if let Some(c) = self.current() {
+                if let Ok(c) = self.current() {
                     current = c;
                 } else {
                     break;

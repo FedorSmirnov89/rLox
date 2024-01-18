@@ -1,7 +1,7 @@
 use crate::{
     domain::grammar::VarDeclaration,
     interpreter::{error::InterpreterError, expressions::InterpretedExpression},
-    Environment, Value,
+    Environment,
 };
 
 use super::InterpretedStatement;
@@ -12,13 +12,17 @@ impl InterpretedStatement for VarDeclaration {
             VarDeclaration::Declare(i) => i,
             VarDeclaration::DeclareAndAssign(i, _) => i,
         };
+        state.declare_var(iden.as_ref());
 
-        let value = match self {
-            VarDeclaration::Declare(_) => Value::nil(),
-            VarDeclaration::DeclareAndAssign(_, e) => e.interpret_expression(state)?,
-        };
-
-        state.set_var_value(iden, value);
+        match self {
+            VarDeclaration::DeclareAndAssign(_, e) => {
+                let val = e.interpret_expression(state)?;
+                state
+                    .set_var_value(iden.as_ref(), val)
+                    .expect("variable was just declared");
+            }
+            VarDeclaration::Declare(_) => {}
+        }
         Ok(())
     }
 }

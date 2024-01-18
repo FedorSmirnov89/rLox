@@ -13,7 +13,7 @@ impl<'tokens> Parser<'tokens> {
     ///
     pub(super) fn term(&mut self) -> Result<Term> {
         let mut term = Term::Factor(self.factor()?);
-        if let Some(mut current) = self.current() {
+        if let Ok(mut current) = self.current() {
             while matches_t_type!(current, &TokenType::Plus, &TokenType::Minus) {
                 self.advance();
                 let left = Box::new(term);
@@ -23,7 +23,7 @@ impl<'tokens> Parser<'tokens> {
                     TokenType::Minus => Term::Subtraction { left, right },
                     _ => unreachable!(),
                 };
-                if let Some(c) = self.current() {
+                if let Ok(c) = self.current() {
                     current = c;
                 } else {
                     break;

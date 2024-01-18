@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Display};
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 
 use crate::{
     domain::{grammar::Program, location::CodeSpan},
@@ -126,9 +126,18 @@ impl Environment {
         self.tmp_value.as_ref()
     }
 
-    pub fn set_var_value(&mut self, iden: impl Into<String>, val: Value) {
+    pub fn declare_var(&mut self, iden: impl Into<String>) {
         let key = iden.into();
+        self.values.insert(key, Value::nil());
+    }
+
+    pub fn set_var_value(&mut self, iden: impl Into<String>, val: Value) -> Result<()> {
+        let key = iden.into();
+        if !self.values.contains_key(&key) {
+            bail!("variable not declared")
+        }
         self.values.insert(key, val);
+        Ok(())
     }
 
     pub fn get_var_value(&self, iden: &str) -> Option<&Value> {

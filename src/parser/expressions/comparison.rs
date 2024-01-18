@@ -13,7 +13,7 @@ impl<'tokens> Parser<'tokens> {
     ///
     pub(crate) fn comparison(&mut self) -> Result<Comparison> {
         let mut comp = Comparison::Term(self.term()?);
-        if let Some(mut current) = self.current() {
+        if let Ok(mut current) = self.current() {
             while matches_t_type!(
                 current,
                 &TokenType::Greater,
@@ -31,7 +31,7 @@ impl<'tokens> Parser<'tokens> {
                     TokenType::LessEqual => Comparison::LessEqual { left, right },
                     _ => unreachable!(),
                 };
-                if let Some(c) = self.current() {
+                if let Ok(c) = self.current() {
                     current = c;
                 } else {
                     break;

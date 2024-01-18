@@ -1,16 +1,16 @@
-use anyhow::{bail, Result};
+use anyhow::Result;
 
 use crate::{
-    domain::{grammar::VarDeclaration, scanning::TokenType},
+    domain::{
+        grammar::{StringLiteral, VarDeclaration},
+        scanning::TokenType,
+    },
     parser::Parser,
 };
 
 impl<'tokens> Parser<'tokens> {
     pub(crate) fn var_declaration(&mut self) -> Result<VarDeclaration> {
-        // first, we expect an identifier
-        let TokenType::Identifier(iden) = self.current().unwrap().t_type.clone() else {
-            bail!("Expected identifier");
-        };
+        let iden = StringLiteral::identifier_from_token(self.current()?)?;
         self.advance();
 
         if self.current().unwrap().t_type == TokenType::Equal {

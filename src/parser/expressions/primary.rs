@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
 use crate::{
     domain::{
@@ -10,7 +10,7 @@ use crate::{
 
 impl<'tokens> Parser<'tokens> {
     pub(super) fn primary(&mut self) -> Result<Primary> {
-        let current = self.current().ok_or(anyhow!("Unexpected end of input"))?;
+        let current = self.current()?;
         let location = current.location();
 
         let primary = match current.t_type {
