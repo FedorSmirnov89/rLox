@@ -1,6 +1,6 @@
-use std::{collections::HashMap, fmt::Display};
+use std::fmt::Display;
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 
 use crate::{
     domain::{grammar::Program, location::CodeSpan},
@@ -9,7 +9,10 @@ use crate::{
 
 use self::{error::InterpreterError, statements::InterpretedStatement};
 
+pub mod environment;
 pub mod error;
+
+pub use environment::*;
 
 mod expressions;
 mod statements;
@@ -103,44 +106,5 @@ impl Interpreter {
 
     pub fn environment(&self) -> &Environment {
         &self.environment
-    }
-}
-
-///
-/// The state of the interpreter:
-///
-/// - The current values of the global variables
-///
-#[derive(Debug, Default)]
-pub struct Environment {
-    values: HashMap<String, Value>,
-    tmp_value: Option<Value>,
-}
-
-impl Environment {
-    pub fn set_tmp_value(&mut self, val: Value) {
-        self.tmp_value = Some(val)
-    }
-
-    pub fn get_tmp_value(&self) -> Option<&Value> {
-        self.tmp_value.as_ref()
-    }
-
-    pub fn declare_var(&mut self, iden: impl Into<String>) {
-        let key = iden.into();
-        self.values.insert(key, Value::nil());
-    }
-
-    pub fn set_var_value(&mut self, iden: impl Into<String>, val: Value) -> Result<()> {
-        let key = iden.into();
-        if !self.values.contains_key(&key) {
-            bail!("variable not declared")
-        }
-        self.values.insert(key, val);
-        Ok(())
-    }
-
-    pub fn get_var_value(&self, iden: &str) -> Option<&Value> {
-        self.values.get(iden)
     }
 }
