@@ -1,11 +1,12 @@
 use std::fmt::Display;
 
-use crate::domain::location::CodeSpan;
+use crate::domain::{grammar::StringLiteral, location::CodeSpan};
 
 #[derive(Debug)]
 pub enum InterpreterError {
     BinaryOperatorError(BinaryOperatorError),
     UnaryOperatorError(UnaryOperatorError),
+    IdentifierNotDefinedError(IdentifierNotDefinedError),
 }
 
 impl InterpreterError {
@@ -31,11 +32,31 @@ impl InterpreterError {
         })
     }
 
+    pub fn identifier_not_defined(iden: StringLiteral) -> Self {
+        Self::IdentifierNotDefinedError(IdentifierNotDefinedError { iden })
+    }
+
     pub fn msg(self, src_str: &str) -> String {
         match self {
             Self::BinaryOperatorError(e) => e.msg(src_str),
             Self::UnaryOperatorError(e) => e.msg(src_str),
+            Self::IdentifierNotDefinedError(e) => e.msg(),
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct IdentifierNotDefinedError {
+    pub iden: StringLiteral,
+}
+
+impl IdentifierNotDefinedError {
+    fn msg(self) -> String {
+        format!(
+            "identifier '{iden}' (used in line {l}) not defined",
+            iden = self.iden,
+            l = self.iden.span.start.line
+        )
     }
 }
 
@@ -117,9 +138,9 @@ macro_rules! operator_error {
 
         let err = InterpreterError::binary_operator(
             msg,
-            CodeSpan::in_between($left.span, $right.span),
-            $left.span,
-            $right.span,
+            CodeSpan::in_between($left.span(), $right.span()),
+            $left.span(),
+            $right.span(),
         );
         return Err(err);
     };
@@ -132,7 +153,7 @@ macro_rules! operator_error {
             val = $val.v_type,
         );
 
-        let err = InterpreterError::unary_operator(msg, $val.span, $val.span);
+        let err = InterpreterError::unary_operator(msg, $val.span(), $val.span());
         return Err(err);
     };
 }

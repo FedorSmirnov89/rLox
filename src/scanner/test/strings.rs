@@ -33,7 +33,7 @@ fn string_assignment() {
         pos: 21,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(TokenType::Equal, loc2),
         Token::string("my great string", loc3),
         Token::eof(loc4),
@@ -76,7 +76,7 @@ fn string_not_spaced() {
         pos: 19,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(TokenType::Equal, loc2),
         Token::string("my great string", loc3),
         Token::eof(loc4),

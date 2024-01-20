@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rlox::{Interpreter, Value};
+use rlox::{Environment, Interpreter, Value};
 
 mod interpreter;
 mod parser;
@@ -16,7 +16,11 @@ impl TestApp {
         }
     }
 
-    fn process_input(&mut self, input: &str) -> Result<Value, Vec<anyhow::Error>> {
+    fn process_input(&mut self, input: &str) -> Result<Option<Value>, Vec<anyhow::Error>> {
         self.interpreter.interpret_src_str(input)
+    }
+
+    fn interpreter_state(&self) -> &Environment {
+        &self.interpreter.environment()
     }
 }

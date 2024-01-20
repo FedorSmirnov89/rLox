@@ -116,9 +116,9 @@ fn test_two_chars_spaced(c: impl Display, t_type: TokenType) {
         pos: 6,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(t_type, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
     assert_result_types_match(&output, &expected);
@@ -149,9 +149,9 @@ fn test_one_char_spaced(c: impl Display, t_type: TokenType) {
         pos: 5,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(t_type, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
     assert_result_types_match(&output, &expected);
@@ -182,9 +182,9 @@ fn test_two_chars_not_spaced(c: impl Display, t_type: TokenType) {
         pos: 4,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(t_type, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
     assert_result_types_match(&output, &expected);
@@ -215,9 +215,9 @@ fn test_one_char_not_spaced(c: impl Display, t_type: TokenType) {
         pos: 3,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(t_type, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
     assert_result_types_match(&output, &expected);

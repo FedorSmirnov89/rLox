@@ -21,3 +21,7 @@ Running as interpreter for a file:
 ```
 cargo r -- file [file_path]
 ```
+
+## Differences to the implementation in the book
+
+- Variable assignment is a statement and not an expression

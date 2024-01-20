@@ -71,9 +71,9 @@ fn exact_keyword_recognized(s: &str, t_type: TokenType) {
         pos: 0 + format!("a {s} b").len(),
     };
     let expected = vec![
-        Token::identifier("a", loc1),
-        Token::identifier(s, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("a", loc1),
+        Token::keyword_or_identifier(s, loc2),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
     assert_eq!(expected[0], output[0], "first");
@@ -110,9 +110,9 @@ fn shorter_keyword_is_identifier(s: &str) {
         pos: 0 + format!("a {s} b").len(),
     };
     let expected = vec![
-        Token::identifier("a", loc1),
-        Token::identifier(s, loc2),
-        Token::identifier("b", loc3),
+        Token::keyword_or_identifier("a", loc1),
+        Token::keyword_or_identifier(s, loc2),
+        Token::keyword_or_identifier("b", loc3),
         Token::eof(loc4),
     ];
     assert_eq!(expected[0], output[0], "first");
@@ -143,8 +143,8 @@ fn longer_keyword_is_identifier(s: &str) {
         pos: 0 + format!("a {s}b").len(),
     };
     let expected = vec![
-        Token::identifier("a", loc1),
-        Token::identifier(format!("{s}b"), loc2),
+        Token::keyword_or_identifier("a", loc1),
+        Token::keyword_or_identifier(format!("{s}b"), loc2),
         Token::eof(loc3),
     ];
     assert_eq!(expected[0], output[0], "first");

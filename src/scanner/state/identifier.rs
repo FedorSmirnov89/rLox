@@ -16,7 +16,7 @@ pub(super) fn add_char_identifier(
 
     if state_changed {
         let loc_after_string = cur_location.advance_str(&chars);
-        let token = Token::identifier(chars, cur_location);
+        let token = Token::keyword_or_identifier(chars, cur_location);
         switch_state(c, loc_after_string, Some(token))
     } else {
         chars.push(c);

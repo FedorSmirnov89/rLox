@@ -31,7 +31,7 @@ fn integer_spaced() {
         pos: 6,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(TokenType::Equal, loc2),
         Token::number("42.0", loc3),
         Token::eof(loc4),
@@ -78,11 +78,11 @@ fn integer_spaced_not_ending() {
         pos: 10,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(TokenType::Equal, loc2),
         Token::number("42.0", loc3),
         Token::one_two_char(TokenType::Less, loc4),
-        Token::identifier("b", loc5),
+        Token::keyword_or_identifier("b", loc5),
         Token::eof(loc6),
     ];
     assert_eq!(expected[0], output[0], "first");
@@ -118,7 +118,7 @@ fn integer_not_spaced() {
         pos: 4,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(TokenType::Equal, loc2),
         Token::number("42.0", loc3),
         Token::eof(loc4),
@@ -154,7 +154,7 @@ fn float() {
         pos: 9,
     };
     let expected = vec![
-        Token::identifier("a", loc1),
+        Token::keyword_or_identifier("a", loc1),
         Token::one_two_char(TokenType::Equal, loc2),
         Token::number("42.24", loc3),
         Token::eof(loc4),

@@ -3,18 +3,17 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::Comparison, scanning::TokenType},
     matches_t_type,
+    parser::Parser,
 };
-
-use super::Parser;
 
 impl<'tokens> Parser<'tokens> {
     ///
     /// Reads out a comparison expression from the current position in the token stream.
     /// Also advances the current position in the token stream to the next token after the comparison.
     ///
-    pub(super) fn comparison(&mut self) -> Result<Comparison> {
+    pub(crate) fn comparison(&mut self) -> Result<Comparison> {
         let mut comp = Comparison::Term(self.term()?);
-        if let Some(mut current) = self.current() {
+        if let Ok(mut current) = self.current() {
             while matches_t_type!(
                 current,
                 &TokenType::Greater,
@@ -32,7 +31,7 @@ impl<'tokens> Parser<'tokens> {
                     TokenType::LessEqual => Comparison::LessEqual { left, right },
                     _ => unreachable!(),
                 };
-                if let Some(c) = self.current() {
+                if let Ok(c) = self.current() {
                     current = c;
                 } else {
                     break;
@@ -48,11 +47,11 @@ impl<'tokens> Parser<'tokens> {
 mod test {
     use crate::{
         domain::{
-            grammar::{Comparison, Expression},
+            grammar::Comparison,
             location::Location,
             scanning::{Token, TokenType},
         },
-        parser::parse,
+        parser::{assert_expression, parse},
     };
 
     #[test]
@@ -63,14 +62,13 @@ mod test {
             Token::string("a", loc),
             Token::one_two_char(TokenType::LessEqual, loc),
             Token::string("b", loc),
+            Token::semicolon(loc),
             Token::eof(loc),
         ];
 
         let output = parse(input).expect("failed to parse");
 
         let expected_comp = Comparison::string_less_equal("a", "b");
-        let expected: Vec<Expression> = vec![expected_comp.into()];
-
-        assert_eq!(expected, output);
+        assert_expression(output, expected_comp.into());
     }
 }

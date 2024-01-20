@@ -3,17 +3,22 @@ use crate::{
         grammar::{Comparison, Equality},
         location::CodeSpan,
     },
-    operator_error, Value,
+    interpreter::error::InterpreterError,
+    operator_error, Environment, Value, ValueType,
 };
 
-use super::{error::InterpreterError, Interpretation, ValueType};
+use super::InterpretedExpression;
 
-impl Interpretation for Equality {
-    fn interpret(&self) -> Result<Value, InterpreterError> {
+impl InterpretedExpression for Equality {
+    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
         match self {
-            Equality::Comparison(c) => c.interpret(),
-            Equality::EqualityCheck { left, right } => operation(left, right, Operator::Equal),
-            Equality::InequalityCheck { left, right } => operation(left, right, Operator::NotEqual),
+            Equality::Comparison(c) => c.interpret_expression(state),
+            Equality::EqualityCheck { left, right } => {
+                operation(left, right, Operator::Equal, state)
+            }
+            Equality::InequalityCheck { left, right } => {
+                operation(left, right, Operator::NotEqual, state)
+            }
         }
     }
 }
@@ -27,9 +32,10 @@ fn operation(
     left: &Box<Equality>,
     right: &Comparison,
     operator: Operator,
+    state: &Environment,
 ) -> Result<Value, InterpreterError> {
-    let left_val = left.interpret()?;
-    let right_val = right.interpret()?;
+    let left_val = left.interpret_expression(state)?;
+    let right_val = right.interpret_expression(state)?;
 
     let b = match (&left_val.v_type, &right_val.v_type) {
         (ValueType::Number(l), ValueType::Number(r)) => match operator {
@@ -54,7 +60,7 @@ fn operation(
     };
     let value = Value::new(
         ValueType::Boolean(b),
-        CodeSpan::merged(left_val.span, right_val.span),
+        CodeSpan::merged(left_val.span(), right_val.span()),
     );
     Ok(value)
 }

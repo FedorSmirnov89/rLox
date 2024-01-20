@@ -1,15 +1,16 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
-use crate::domain::{
-    grammar::{NumLiteral, Primary, StringLiteral},
-    scanning::TokenType,
+use crate::{
+    domain::{
+        grammar::{NumLiteral, Primary, StringLiteral},
+        scanning::TokenType,
+    },
+    parser::Parser,
 };
-
-use super::Parser;
 
 impl<'tokens> Parser<'tokens> {
     pub(super) fn primary(&mut self) -> Result<Primary> {
-        let current = self.current().ok_or(anyhow!("Unexpected end of input"))?;
+        let current = self.current()?;
         let location = current.location();
 
         let primary = match current.t_type {
@@ -78,7 +79,7 @@ mod test {
             location::Location,
             scanning::{Token, TokenType},
         },
-        parser::parse,
+        parser::{assert_expression, parse},
     };
 
     #[test]
@@ -89,6 +90,7 @@ mod test {
             Token::one_char(TokenType::ParenLeft, location),
             Token::number("42", location),
             Token::one_char(TokenType::ParenRight, location),
+            Token::semicolon(location),
             Token::eof(location),
         ];
 
@@ -96,8 +98,7 @@ mod test {
 
         let expected_inner: Expression = 42.0.into();
         let expected_group = Primary::grouped_expr(expected_inner);
-
-        assert_eq!(vec![expected_group], output);
+        assert_expression(output, expected_group);
     }
 
     #[test]

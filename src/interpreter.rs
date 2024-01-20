@@ -2,33 +2,48 @@ use std::fmt::Display;
 
 use anyhow::Result;
 
-use crate::domain::{grammar::Expression, location::CodeSpan};
+use crate::{
+    domain::{grammar::Program, location::CodeSpan},
+    Interpreter,
+};
 
-use self::error::InterpreterError;
+use self::{error::InterpreterError, statements::InterpretedStatement};
 
+pub mod environment;
 pub mod error;
 
-mod comparison;
-mod equality;
-mod expression;
-mod factor;
-mod primary;
-mod term;
-mod unary;
+pub use environment::*;
 
-#[derive(Debug, PartialEq)]
+mod expressions;
+mod statements;
+
+#[derive(Debug, PartialEq, Clone)]
 pub struct Value {
     pub v_type: ValueType,
-    pub span: CodeSpan,
+    span: Option<CodeSpan>,
 }
 
 impl Value {
     pub fn new(v_type: ValueType, span: CodeSpan) -> Self {
-        Self { v_type, span }
+        Self {
+            v_type,
+            span: Some(span),
+        }
+    }
+
+    pub fn nil() -> Self {
+        Self {
+            v_type: ValueType::Nil,
+            span: None,
+        }
+    }
+
+    pub fn span(&self) -> CodeSpan {
+        self.span.unwrap()
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ValueType {
     Number(f64),
     String(String),
@@ -65,19 +80,31 @@ impl Display for ValueType {
     }
 }
 
-pub(crate) fn interpret(expressions: Vec<Expression>) -> Result<Value, Vec<InterpreterError>> {
-    if expressions.len() != 1 {
-        unimplemented!("Only working with one expression at a time for now");
+impl Interpreter {
+    ///
+    /// Interprets the given program. If the last statement is an expression, the value of that
+    /// expression is returned.
+    ///
+    pub(crate) fn interpret(
+        &mut self,
+        program: Program,
+    ) -> Result<Option<Value>, Vec<InterpreterError>> {
+        let environment = &mut self.environment;
+        let mut errors = vec![];
+        for decl in program.into_iter() {
+            match decl.interpret_statement(environment) {
+                Ok(()) => (),
+                Err(e) => errors.push(e),
+            }
+        }
+        if errors.is_empty() {
+            Ok(environment.get_tmp_value().cloned())
+        } else {
+            Err(errors)
+        }
     }
 
-    let expr = expressions.into_iter().next().unwrap();
-
-    match expr.interpret() {
-        Ok(v) => Ok(v),
-        Err(e) => Err(vec![e]),
+    pub fn environment(&self) -> &Environment {
+        &self.environment
     }
-}
-
-trait Interpretation {
-    fn interpret(&self) -> Result<Value, InterpreterError>;
 }

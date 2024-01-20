@@ -1,15 +1,12 @@
 use anyhow::{anyhow, bail, Result};
 
 use crate::domain::{
-    grammar::{Equality, Expression},
+    grammar::Program,
     scanning::{Token, TokenType},
 };
 
-mod comparison;
-mod factor;
-mod primary;
-mod term;
-mod unary;
+mod expressions;
+mod statements;
 
 #[macro_export]
 macro_rules! matches_t_type {
@@ -21,7 +18,7 @@ macro_rules! matches_t_type {
     };
 }
 
-pub(super) fn parse(tokens: Vec<Token>) -> Result<Vec<Expression>, Vec<anyhow::Error>> {
+pub(super) fn parse(tokens: Vec<Token>) -> Result<Program, Vec<anyhow::Error>> {
     Parser::new(&tokens).parse()
 }
 
@@ -35,12 +32,12 @@ impl<'tokens> Parser<'tokens> {
         Self { tokens, cur_pos: 0 }
     }
 
-    fn parse(mut self) -> Result<Vec<Expression>, Vec<anyhow::Error>> {
-        let mut expressions = vec![];
+    fn parse(mut self) -> Result<Program, Vec<anyhow::Error>> {
+        let mut declarations = vec![];
         let mut errors = vec![];
         while self.not_finished() {
-            match self.expression() {
-                Ok(expr) => expressions.push(expr),
+            match self.declaration() {
+                Ok(s) => declarations.push(s),
                 Err(err) => {
                     errors.push(err);
                     self.synchronize();
@@ -48,7 +45,7 @@ impl<'tokens> Parser<'tokens> {
             }
         }
         if errors.is_empty() {
-            Ok(expressions)
+            Ok(Program(declarations))
         } else {
             Err(errors)
         }
@@ -58,30 +55,16 @@ impl<'tokens> Parser<'tokens> {
         &self.current().expect("current pos is out of bounds").t_type != &TokenType::EOF
     }
 
-    fn expression(&mut self) -> Result<Expression> {
-        let mut comp = Equality::Comparison(self.comparison()?);
-        if let Some(mut current) = self.current() {
-            while matches_t_type!(current, &TokenType::EqualEqual, &TokenType::BangEqual) {
-                self.advance();
-                let left = Box::new(comp);
-                let right = self.comparison()?;
-                comp = match current.t_type() {
-                    TokenType::EqualEqual => Equality::EqualityCheck { left, right },
-                    TokenType::BangEqual => Equality::InequalityCheck { left, right },
-                    _ => unreachable!(),
-                };
-                if let Some(c) = self.current() {
-                    current = c;
-                } else {
-                    break;
-                }
-            }
-        }
-        Ok(Expression::Equality(comp))
+    fn current(&self) -> Result<&'tokens Token> {
+        self.tokens.get(self.cur_pos).ok_or(anyhow!(
+            "Unexpected end of token stream when looking at current"
+        ))
     }
 
-    fn current(&self) -> Option<&'tokens Token> {
-        self.tokens.get(self.cur_pos)
+    fn next(&self) -> Result<&'tokens Token> {
+        self.tokens.get(self.cur_pos + 1).ok_or(anyhow!(
+            "Unexpected end of token stream when looking at next"
+        ))
     }
 
     fn synchronize(&mut self) {
@@ -101,32 +84,44 @@ impl<'tokens> Parser<'tokens> {
     }
 
     fn expect(&mut self, t_type: &TokenType) -> Result<()> {
-        if let Some(current) = self.current() {
-            if matches_t_type!(current, t_type) {
-                Ok(())
-            } else {
-                bail!(
-                    "Expected token type {:?} but got {:?}; Token location: {loc}",
-                    t_type,
-                    current.t_type(),
-                    loc = current.location()
-                )
-            }
+        let current = self.current()?;
+        if matches_t_type!(current, t_type) {
+            Ok(())
         } else {
-            Err(anyhow!("Unexpected end of token stream"))
+            bail!(
+                "Expected token type {:?} but got {:?}; Token location: {loc}",
+                t_type,
+                current.t_type(),
+                loc = current.location()
+            )
         }
+    }
+}
+
+#[cfg(test)]
+use crate::domain::grammar::{Declaration, Expression, Statement};
+
+#[cfg(test)]
+fn assert_expression(program: Program, expected: Expression) {
+    assert_eq!(1, program.len());
+    match &program[0] {
+        Declaration::Statement(Statement::Expression(e)) => assert_eq!(expected, *e),
+        _ => panic!("Expected expression"),
     }
 }
 
 #[cfg(test)]
 mod test {
     use crate::domain::{
-        grammar::{Equality, Expression},
+        grammar::{
+            Comparison, Declaration, Equality, Expression, Factor, Primary, Statement,
+            StringLiteral, Term, Unary,
+        },
         location::Location,
         scanning::{Token, TokenType},
     };
 
-    use super::parse;
+    use super::{assert_expression, parse};
 
     #[test]
     fn matches_basic() {
@@ -174,14 +169,52 @@ mod test {
             Token::string("a", loc),
             Token::one_two_char(TokenType::EqualEqual, loc),
             Token::string("b", loc),
+            Token::semicolon(loc),
             Token::eof(loc),
         ];
 
         let output = parse(input).expect("failed to parse");
 
         let expected_expr = Expression::Equality(Equality::string_equality("a", "b"));
-        let expected = vec![expected_expr];
+        assert_expression(output, expected_expr);
+    }
 
-        assert_eq!(expected, output);
+    #[test]
+    fn expr_and_print() {
+        let loc = Location::default();
+
+        let input = vec![
+            Token::string("a", loc),
+            Token::one_two_char(TokenType::EqualEqual, loc),
+            Token::string("b", loc),
+            Token::semicolon(loc),
+            Token::keyword_or_identifier("print", loc),
+            Token::string("abc", loc),
+            Token::semicolon(loc),
+            Token::eof(loc),
+        ];
+
+        let output = parse(input).expect("failed to parse");
+        assert_eq!(2, output.len());
+
+        let expected_first_expr = Expression::Equality(Equality::string_equality("a", "b"));
+        let expected_second_expr = Expression::Equality(Equality::Comparison(Comparison::Term(
+            Term::Factor(Factor::Unary(Unary::Primary(Primary::String(
+                StringLiteral::new_string("abc", loc),
+            )))),
+        )));
+
+        match &output[0] {
+            Declaration::Statement(Statement::Expression(expr)) => {
+                assert_eq!(expected_first_expr, *expr);
+            }
+            _ => panic!("Expected expression"),
+        }
+        match &output[1] {
+            Declaration::Statement(Statement::Print(expr)) => {
+                assert_eq!(expected_second_expr, *expr);
+            }
+            _ => panic!("Expected print statement"),
+        }
     }
 }

@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use domain::grammar::Expression;
+use domain::grammar::{Declaration, Expression, Program, Statement};
 use std::fmt::Write;
 
 pub mod domain;
@@ -12,6 +12,7 @@ mod scanner;
 
 pub use arguments::*;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input};
+pub use interpreter::Environment;
 pub use interpreter::{Value, ValueType};
 
 use crate::{domain::location::CodeSpan, scanner::scan_input};
@@ -21,8 +22,12 @@ pub fn interpret_lox_file(path: &str) -> Result<()> {
         .with_context(|| format!("error reading in file at '{path}'"))?;
     let mut interpreter = Interpreter::default();
     match interpreter.interpret_src_str(&lox_str) {
-        Ok(v) => {
+        Ok(Some(v)) => {
             println!("file interpreted; evaluation result: {v}");
+            Ok(())
+        }
+        Ok(None) => {
+            println!("file interpreted; no evaluation result");
             Ok(())
         }
         Err(errors) => Err(summarize_errors(errors)?),
@@ -53,9 +58,12 @@ pub fn run_prompt() -> Result<()> {
         }
 
         match interpreter.interpret_src_str(&input) {
-            Ok(v) => {
+            Ok(Some(v)) => {
                 println!("evaluation result: {v}");
                 last_value = v;
+            }
+            Ok(None) => {
+                println!("no evaluation result");
             }
             Err(errors) => {
                 let err_summary = summarize_errors(errors)?;
@@ -70,19 +78,27 @@ pub fn run_prompt() -> Result<()> {
 }
 
 #[derive(Default)]
-pub struct Interpreter {}
+pub struct Interpreter {
+    environment: Environment,
+}
 
 impl Interpreter {
     ///
     /// Interprets the given source string while mutating the current state of the interpreter
     ///
-    pub fn interpret_src_str(&mut self, source_str: &str) -> Result<Value, Vec<anyhow::Error>> {
+    pub fn interpret_src_str(
+        &mut self,
+        source_str: &str,
+    ) -> Result<Option<Value>, Vec<anyhow::Error>> {
         println!("interpreting the following: '{source_str}'");
         let tokens = scan_input(source_str)?;
-        let expressions = parser::parse(tokens)?;
-        print_ast(&expressions);
+        let program = parser::parse(tokens)?;
 
-        match interpreter::interpret(expressions) {
+        if let Some(expr) = single_expression(&program) {
+            print_expr_ast(expr);
+        }
+
+        match self.interpret(program) {
             Ok(value) => Ok(value),
             Err(errors) => {
                 let mut interpreter_errors = vec![];
@@ -96,11 +112,20 @@ impl Interpreter {
     }
 }
 
-fn print_ast(expressions: &[Expression]) {
-    println!("here is the AST we got: ");
-    for expr in expressions {
-        println!("{}", expr);
+fn single_expression(program: &Program) -> Option<Expression> {
+    if program.len() != 1 {
+        return None;
     }
+
+    match &program[0] {
+        Declaration::Statement(Statement::Expression(e)) => Some(e.clone()),
+        _ => None,
+    }
+}
+
+fn print_expr_ast(expr: Expression) {
+    println!("here is the AST we got: ");
+    println!("{}", expr);
 }
 
 fn summarize_errors(errors: Vec<anyhow::Error>) -> Result<anyhow::Error> {

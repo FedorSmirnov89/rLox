@@ -1,11 +1,16 @@
-use crate::domain::location::{CodeSpan, Location};
+use anyhow::{bail, Result};
+
+use crate::domain::{
+    location::{CodeSpan, Location},
+    scanning::{Token, TokenType},
+};
 
 use super::Expression;
 
 #[cfg(test)]
 use super::{Comparison, Equality, Factor, Term, Unary};
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) enum Primary {
     Number(NumLiteral),
     String(StringLiteral),
@@ -52,7 +57,7 @@ impl Primary {
     }
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) struct StringLiteral {
     pub(crate) value: String,
     pub(crate) span: CodeSpan,
@@ -63,16 +68,26 @@ impl StringLiteral {
         Self { value, span }
     }
 
-    pub(crate) fn new_string(value: String, start: Location) -> Self {
+    pub(crate) fn new_string(value: impl Into<String>, start: Location) -> Self {
+        let value = value.into();
         let end = start.shifted(value.len() + 2);
         let span = CodeSpan { start, end };
         Self::new(value, span)
     }
 
-    pub(crate) fn new_identifier(value: String, start: Location) -> Self {
+    pub(crate) fn new_identifier(value: impl Into<String>, start: Location) -> Self {
+        let value = value.into();
         let end = start.shifted(value.len());
         let span = CodeSpan { start, end };
         Self::new(value, span)
+    }
+
+    pub(crate) fn identifier_from_token(token: &Token) -> Result<Self> {
+        let TokenType::Identifier(iden) = token.t_type() else {
+            bail!("current is not an identifier")
+        };
+        let start = token.location();
+        Ok(Self::new_identifier(iden, start))
     }
 }
 
@@ -82,7 +97,7 @@ impl AsRef<str> for StringLiteral {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub(crate) struct NumLiteral {
     pub(crate) value: f64,
     pub(crate) span: CodeSpan,

@@ -23,8 +23,8 @@ fn tokens_two_identifier() {
         pos: 8,
     };
     let expected = vec![
-        Token::identifier("abc", loc1),
-        Token::identifier("bcd", loc2),
+        Token::keyword_or_identifier("abc", loc1),
+        Token::keyword_or_identifier("bcd", loc2),
         Token::eof(loc3),
     ];
     assert_eq!(expected[0], output[0], "first");
@@ -49,6 +49,6 @@ fn tokens_identifier() {
         line: 1,
         pos: 3,
     };
-    let expected = vec![Token::identifier("abc", loc1), Token::eof(loc2)];
+    let expected = vec![Token::keyword_or_identifier("abc", loc1), Token::eof(loc2)];
     assert_eq!(expected, output);
 }
