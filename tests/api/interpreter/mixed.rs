@@ -1,3 +1,4 @@
+use claim::assert_err;
 use rlox::ValueType;
 
 use crate::TestApp;
@@ -96,6 +97,30 @@ fn var_scope_shadow_removed_on_leaving_scope() {
 
     // Act - interpret the input
     test_app.process_input(input).unwrap();
+
+    // Assert - check  the value of b - has to be what a is in outer scope
+    let var = test_app.interpreter_state().get_var_value("b");
+    assert!(var.is_some(), "declared variable not in state");
+    assert_eq!(ValueType::Number(1.0), var.unwrap().v_type);
+}
+
+#[test]
+fn var_scope_leavin_scope_on_error() {
+    // Arrange
+    let input = r#"
+        var a = 1;
+        var b;
+        {
+            var a = true;
+            undeclared = 1;
+        }
+        b = a;
+    "#;
+    let mut test_app = TestApp::spawn();
+
+    // Act - interpret the input
+    let outcome = test_app.process_input(input);
+    assert_err!(outcome);
 
     // Assert - check  the value of b - has to be what a is in outer scope
     let var = test_app.interpreter_state().get_var_value("b");
