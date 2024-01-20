@@ -1,5 +1,6 @@
 use super::{error::InterpreterError, Environment};
 
+mod block;
 mod declaration;
 mod statement;
 mod var_declaration;
