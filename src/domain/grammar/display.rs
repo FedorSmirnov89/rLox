@@ -1,13 +1,32 @@
 use std::fmt::Display;
 
 use super::{
-    Comparison, Equality, Expression, Factor, NumLiteral, Primary, StringLiteral, Term, Unary,
+    Comparison, Equality, Expression, Factor, LogicAnd, LogicOr, NumLiteral, Primary,
+    StringLiteral, Term, Unary,
 };
 
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Expression::Equality(e) => write!(f, "{e}"),
+            Expression::LogicOr(e) => write!(f, "{e}"),
+        }
+    }
+}
+
+impl Display for LogicOr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            LogicOr::LogicAnd(l) => write!(f, "{l}"),
+            LogicOr::Or { left, right } => write!(f, "(OR {left} {right})"),
+        }
+    }
+}
+
+impl Display for LogicAnd {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            LogicAnd::Equality(e) => write!(f, "{e}"),
+            LogicAnd::And { left, right } => write!(f, "(AND {left} {right})"),
         }
     }
 }
@@ -93,31 +112,26 @@ impl Display for StringLiteral {
 #[cfg(test)]
 mod test {
     use crate::domain::{
-        grammar::{Comparison, Equality, Expression, Factor, NumLiteral, Primary, Term, Unary},
+        grammar::{Expression, Factor, NumLiteral, Primary, Unary},
         location::Location,
     };
 
     #[test]
     fn expression_displayed_correctly() {
         let expected = "(* (- 123) (group 45.67))".to_owned();
-        let number = Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Unary(Unary::Primary(Primary::Number(NumLiteral::new(
-                45.67,
-                Location::default(),
-            )))),
-        )))); // 45.67
+        let number: Expression =
+            Primary::Number(NumLiteral::new(45.67, Location::default())).into();
         let grouped_expr = Primary::GroupedExpression(Box::new(number)); // ( 45.67 )
 
         let negated_number = Unary::ArithmNegation(Box::new(Unary::Primary(Primary::Number(
             NumLiteral::new(123.0, Location::default()),
         )))); // - 123s
 
-        let overall = Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Multiplication {
-                left: Box::new(Factor::Unary(negated_number)),
-                right: Unary::Primary(grouped_expr),
-            },
-        ))));
+        let overall: Expression = Factor::Multiplication {
+            left: Box::new(Factor::Unary(negated_number)),
+            right: Unary::Primary(grouped_expr),
+        }
+        .into();
 
         let actual = format!("{overall}");
         assert_eq!(expected, actual);

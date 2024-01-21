@@ -52,6 +52,17 @@ pub enum ValueType {
 }
 
 impl ValueType {
+    pub fn variant_name(&self) -> &'static str {
+        match self {
+            ValueType::Number(_) => "Number",
+            ValueType::String(_) => "String",
+            ValueType::Boolean(_) => "Boolean",
+            ValueType::Nil => "Nil",
+        }
+    }
+}
+
+impl ValueType {
     pub fn string(s: impl Into<String>) -> Self {
         ValueType::String(s.into())
     }

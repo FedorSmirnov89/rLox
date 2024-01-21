@@ -13,14 +13,17 @@ impl<'tokens> Parser<'tokens> {
         let iden = StringLiteral::identifier_from_token(self.current()?)?;
         self.advance();
 
-        if self.current().unwrap().t_type == TokenType::Equal {
+        if self.current()?.t_type == TokenType::Equal {
             self.advance();
             let expr = self.expression()?;
-            self.expect(&TokenType::Semicolon)?;
+            self.expect(&TokenType::Semicolon, "semicolon after rhs of declaration")?;
             self.advance();
             Ok(VarDeclaration::DeclareAndAssign(iden, expr))
         } else {
-            self.expect(&TokenType::Semicolon)?;
+            self.expect(
+                &TokenType::Semicolon,
+                "semicolon after declaration without assignment",
+            )?;
             self.advance();
             Ok(VarDeclaration::Declare(iden))
         }

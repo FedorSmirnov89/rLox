@@ -83,13 +83,13 @@ impl<'tokens> Parser<'tokens> {
         self.cur_pos += 1;
     }
 
-    fn expect(&mut self, t_type: &TokenType) -> Result<()> {
+    fn expect(&mut self, t_type: &TokenType, context: &'static str) -> Result<()> {
         let current = self.current()?;
         if matches_t_type!(current, t_type) {
             Ok(())
         } else {
             bail!(
-                "Expected token type {:?} but got {:?}; Token location: {loc}",
+                "Expected token type '{:?}' but got '{:?}'; Context: '{context}'; Token location: {loc};",
                 t_type,
                 current.t_type(),
                 loc = current.location()
@@ -113,10 +113,7 @@ fn assert_expression(program: Program, expected: Expression) {
 #[cfg(test)]
 mod test {
     use crate::domain::{
-        grammar::{
-            Comparison, Declaration, Equality, Expression, Factor, Primary, Statement,
-            StringLiteral, Term, Unary,
-        },
+        grammar::{Declaration, Equality, Expression, Primary, Statement, StringLiteral},
         location::Location,
         scanning::{Token, TokenType},
     };
@@ -175,7 +172,7 @@ mod test {
 
         let output = parse(input).expect("failed to parse");
 
-        let expected_expr = Expression::Equality(Equality::string_equality("a", "b"));
+        let expected_expr = Equality::string_equality("a", "b").into();
         assert_expression(output, expected_expr);
     }
 
@@ -197,12 +194,9 @@ mod test {
         let output = parse(input).expect("failed to parse");
         assert_eq!(2, output.len());
 
-        let expected_first_expr = Expression::Equality(Equality::string_equality("a", "b"));
-        let expected_second_expr = Expression::Equality(Equality::Comparison(Comparison::Term(
-            Term::Factor(Factor::Unary(Unary::Primary(Primary::String(
-                StringLiteral::new_string("abc", loc),
-            )))),
-        )));
+        let expected_first_expr: Expression = Equality::string_equality("a", "b").into();
+        let expected_second_expr: Expression =
+            Primary::String(StringLiteral::new_string("abc", loc)).into();
 
         match &output[0] {
             Declaration::Statement(Statement::Expression(expr)) => {

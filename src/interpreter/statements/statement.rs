@@ -6,7 +6,7 @@ use crate::{
 use super::InterpretedStatement;
 
 impl InterpretedStatement for Statement {
-    fn interpret_statement(&self, env: &mut Environment) -> anyhow::Result<(), InterpreterError> {
+    fn interpret_statement(&self, env: &mut Environment) -> Result<(), InterpreterError> {
         match self {
             Statement::Expression(e) => {
                 let value = e.interpret_expression(env)?;
@@ -25,6 +25,10 @@ impl InterpretedStatement for Statement {
                     Err(_) => Err(InterpreterError::identifier_not_defined(iden.clone())),
                 }
             }
+            Statement::IfThen(if_then) => if_then.interpret_statement(env),
+            Statement::IfThenElse(if_then_else) => if_then_else.interpret_statement(env),
+            Statement::While(while_loop) => while_loop.interpret_statement(env),
+            Statement::For(desugered_for) => desugered_for.interpret_statement(env),
         }
     }
 }

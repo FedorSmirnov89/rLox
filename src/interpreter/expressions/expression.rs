@@ -9,7 +9,7 @@ use super::InterpretedExpression;
 impl InterpretedExpression for Expression {
     fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
         match self {
-            Expression::Equality(eq) => eq.interpret_expression(state),
+            Expression::LogicOr(l_or) => l_or.interpret_expression(state),
         }
     }
 }

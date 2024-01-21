@@ -6,6 +6,7 @@ mod comparison;
 mod equality;
 mod expression;
 mod factor;
+mod logical;
 mod primary;
 mod term;
 mod unary;

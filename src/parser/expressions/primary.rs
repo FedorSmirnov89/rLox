@@ -27,7 +27,7 @@ impl<'tokens> Parser<'tokens> {
             TokenType::ParenLeft => {
                 self.advance();
                 let expr = self.expression()?;
-                self.expect(&TokenType::ParenRight)?;
+                self.expect(&TokenType::ParenRight, "closing bracket of a grouping")?;
                 Primary::GroupedExpression(Box::new(expr))
             }
 
