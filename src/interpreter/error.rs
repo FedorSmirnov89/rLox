@@ -1,12 +1,16 @@
 use std::fmt::Display;
 
-use crate::domain::{grammar::StringLiteral, location::CodeSpan};
+use crate::{
+    domain::{grammar::StringLiteral, location::CodeSpan},
+    Value, ValueType,
+};
 
 #[derive(Debug)]
 pub enum InterpreterError {
     BinaryOperatorError(BinaryOperatorError),
     UnaryOperatorError(UnaryOperatorError),
     IdentifierNotDefinedError(IdentifierNotDefinedError),
+    TypeError(TypeError),
 }
 
 impl InterpreterError {
@@ -21,6 +25,18 @@ impl InterpreterError {
             span_operator,
             span_left,
             span_right,
+        })
+    }
+
+    pub fn type_error(expected: ValueType, val: Value, context: &'static str) -> Self {
+        let expected = expected.variant_name();
+        let actual = val.v_type.variant_name();
+        let span = val.span();
+        Self::TypeError(TypeError {
+            expected,
+            actual,
+            span,
+            context,
         })
     }
 
@@ -41,7 +57,35 @@ impl InterpreterError {
             Self::BinaryOperatorError(e) => e.msg(src_str),
             Self::UnaryOperatorError(e) => e.msg(src_str),
             Self::IdentifierNotDefinedError(e) => e.msg(),
+            Self::TypeError(e) => e.msg(),
         }
+    }
+
+    pub fn unwrap_bool(val: Value, context: &'static str) -> Result<bool, Self> {
+        match val.v_type {
+            ValueType::Boolean(b) => Ok(b),
+            _ => Err(Self::type_error(ValueType::Boolean(true), val, context)),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct TypeError {
+    pub expected: &'static str,
+    pub actual: &'static str,
+    pub context: &'static str,
+    pub span: CodeSpan,
+}
+
+impl TypeError {
+    fn msg(self) -> String {
+        format!(
+            "type error in line {line} - expected: '{expected}'; found: '{actual}'; context: {context}",
+            expected = self.expected,
+            actual = self.actual,
+            context = self.context,
+            line = self.span.start.line
+        )
     }
 }
 

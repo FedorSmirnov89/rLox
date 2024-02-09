@@ -58,6 +58,18 @@ macro_rules! it_interpreter_err {
 
 // single values
 
+// logical or
+it_interpreter! { name: "l_or" | input: "true or false" | expected!(true) }
+it_interpreter_err! { name: "l_or_error_left" | input: r#""abs" or false"#}
+it_interpreter_err! { name: "l_or_error_right_no_short_circuit" | input: r#"false or "abs""#}
+it_interpreter! { name: "l_or_error_right_short_circuit" | input: r#"true or "abs""# | expected!(true)}
+
+// logical and
+it_interpreter! { name: "l_and" | input: "true and false" | expected!(false) }
+it_interpreter_err! { name: "l_and_error_left" | input: r#""abc" and false"#}
+it_interpreter_err! { name: "l_and_error_right_no_short_circuit" | input: r#"true and "abc""#}
+it_interpreter! { name: "l_and_error_right_short_circuit" | input: r#"false and "abc""# | expected!(false)}
+
 // primary
 
 it_interpreter! { name: "single_number" | input: "42" | expected!(num 42.0)}

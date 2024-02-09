@@ -39,21 +39,45 @@ impl Primary {
 }
 
 #[cfg(test)]
+impl From<StringLiteral> for Primary {
+    fn from(value: StringLiteral) -> Self {
+        Primary::String(value)
+    }
+}
+
+#[cfg(test)]
+impl From<Primary> for Unary {
+    fn from(value: Primary) -> Self {
+        Unary::Primary(value)
+    }
+}
+
+#[cfg(test)]
+impl From<Primary> for Expression {
+    fn from(value: Primary) -> Self {
+        let unary: Unary = value.into();
+        unary.into()
+    }
+}
+
+#[cfg(test)]
 impl From<f64> for Expression {
     fn from(value: f64) -> Self {
         let num_lit: NumLiteral = NumLiteral::new(value, Location::default());
-        Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Unary(Unary::Primary(Primary::Number(num_lit))),
+        Equality::Comparison(Comparison::Term(Term::Factor(Factor::Unary(
+            Unary::Primary(Primary::Number(num_lit)),
         ))))
+        .into()
     }
 }
 
 #[cfg(test)]
 impl Primary {
     pub(crate) fn grouped_expr(expr: Expression) -> Expression {
-        Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Unary(Unary::Primary(Primary::GroupedExpression(Box::new(expr)))),
-        ))))
+        let equality = Equality::Comparison(Comparison::Term(Term::Factor(Factor::Unary(
+            Unary::Primary(Primary::GroupedExpression(Box::new(expr))),
+        ))));
+        equality.into()
     }
 }
 

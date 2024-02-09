@@ -1,6 +1,9 @@
 pub(crate) mod comparison;
+pub(crate) mod eq_check;
 pub(crate) mod expression;
 pub(crate) mod factor;
+pub(crate) mod logic_and;
+pub(crate) mod logic_or;
 pub(crate) mod primary;
 pub(crate) mod term;
 pub(crate) mod unary;

@@ -7,7 +7,34 @@ use crate::domain::location::Location;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) enum Expression {
+    LogicOr(LogicOr),
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub(crate) enum LogicOr {
+    LogicAnd(LogicAnd),
+    Or { left: Box<LogicOr>, right: LogicAnd },
+}
+
+impl From<LogicOr> for Expression {
+    fn from(value: LogicOr) -> Self {
+        Expression::LogicOr(value)
+    }
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub(crate) enum LogicAnd {
     Equality(Equality),
+    And {
+        left: Box<LogicAnd>,
+        right: Equality,
+    },
+}
+
+impl From<LogicAnd> for LogicOr {
+    fn from(value: LogicAnd) -> Self {
+        LogicOr::LogicAnd(value)
+    }
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -42,6 +69,20 @@ impl Equality {
     }
 }
 
+impl From<Equality> for LogicAnd {
+    fn from(value: Equality) -> Self {
+        LogicAnd::Equality(value)
+    }
+}
+
+impl From<Equality> for Expression {
+    fn from(value: Equality) -> Self {
+        let l_and: LogicAnd = value.into();
+        let l_or: LogicOr = l_and.into();
+        l_or.into()
+    }
+}
+
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) enum Comparison {
     Term(Term),
@@ -69,7 +110,9 @@ impl Comparison {
 
 impl From<Comparison> for Expression {
     fn from(comp: Comparison) -> Self {
-        Expression::Equality(Equality::Comparison(comp))
+        Expression::LogicOr(LogicOr::LogicAnd(LogicAnd::Equality(Equality::Comparison(
+            comp,
+        ))))
     }
 }
 
@@ -99,7 +142,8 @@ impl Term {
 
 impl From<Term> for Expression {
     fn from(term: Term) -> Self {
-        Expression::Equality(Equality::Comparison(Comparison::Term(term)))
+        let comparison = Comparison::Term(term);
+        comparison.into()
     }
 }
 
@@ -130,7 +174,8 @@ impl Factor {
 
 impl From<Factor> for Expression {
     fn from(factor: Factor) -> Self {
-        Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(factor))))
+        let term = Term::Factor(factor);
+        term.into()
     }
 }
 
@@ -152,8 +197,7 @@ impl Unary {
 
 impl From<Unary> for Expression {
     fn from(unary: Unary) -> Self {
-        Expression::Equality(Equality::Comparison(Comparison::Term(Term::Factor(
-            Factor::Unary(unary),
-        ))))
+        let factor = Factor::Unary(unary);
+        factor.into()
     }
 }
