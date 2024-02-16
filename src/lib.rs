@@ -1,5 +1,4 @@
 use anyhow::{Context, Result};
-use domain::grammar::{Declaration, Expression, Program, Statement};
 use std::fmt::Write;
 
 pub mod domain;
@@ -7,15 +6,16 @@ pub mod errors;
 
 mod arguments;
 mod interpreter;
+mod native_functions;
 mod parser;
 mod scanner;
 
 pub use arguments::*;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input};
 pub use interpreter::Environment;
-pub use interpreter::{Value, ValueType};
+pub use interpreter::{Interpreter, Value, ValueType};
 
-use crate::{domain::location::CodeSpan, scanner::scan_input};
+use crate::domain::location::CodeSpan;
 
 pub fn interpret_lox_file(path: &str) -> Result<()> {
     let lox_str = std::fs::read_to_string(path)
@@ -75,57 +75,6 @@ pub fn run_prompt() -> Result<()> {
 
     println!("last value: {last_value}");
     Ok(())
-}
-
-#[derive(Default)]
-pub struct Interpreter {
-    environment: Environment,
-}
-
-impl Interpreter {
-    ///
-    /// Interprets the given source string while mutating the current state of the interpreter
-    ///
-    pub fn interpret_src_str(
-        &mut self,
-        source_str: &str,
-    ) -> Result<Option<Value>, Vec<anyhow::Error>> {
-        println!("interpreting the following: '{source_str}'");
-        let tokens = scan_input(source_str)?;
-        let program = parser::parse(tokens)?;
-
-        if let Some(expr) = single_expression(&program) {
-            print_expr_ast(expr);
-        }
-
-        match self.interpret(program) {
-            Ok(value) => Ok(value),
-            Err(errors) => {
-                let mut interpreter_errors = vec![];
-                for error in errors {
-                    let e = anyhow::anyhow!(error.msg(source_str));
-                    interpreter_errors.push(e);
-                }
-                Err(interpreter_errors)
-            }
-        }
-    }
-}
-
-fn single_expression(program: &Program) -> Option<Expression> {
-    if program.len() != 1 {
-        return None;
-    }
-
-    match &program[0] {
-        Declaration::Statement(Statement::Expression(e)) => Some(e.clone()),
-        _ => None,
-    }
-}
-
-fn print_expr_ast(expr: Expression) {
-    println!("here is the AST we got: ");
-    println!("{}", expr);
 }
 
 fn summarize_errors(errors: Vec<anyhow::Error>) -> Result<anyhow::Error> {
