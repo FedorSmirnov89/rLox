@@ -79,6 +79,7 @@ impl Display for Unary {
             Unary::Primary(p) => write!(f, "{p}"),
             Unary::LogicalNegation(u) => write!(f, "(! {u})"),
             Unary::ArithmNegation(u) => write!(f, "(- {u})"),
+            Unary::Call(c) => write!(f, "CALL: {c}"),
         }
     }
 }

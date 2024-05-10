@@ -18,6 +18,10 @@ impl<'tokens> Parser<'tokens> {
             };
             Ok(unary)
         } else {
+            // this is the point where we will try to read this as a function call
+            if let Some(callee) = self.callee()? {
+                return Ok(Unary::Call(callee));
+            }
             let primary = Unary::Primary(self.primary()?);
             Ok(primary)
         }

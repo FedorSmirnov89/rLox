@@ -1,5 +1,7 @@
+mod callee;
 mod primary;
 
+pub(crate) use callee::*;
 pub(crate) use primary::*;
 
 #[cfg(test)]
@@ -182,6 +184,7 @@ impl From<Factor> for Expression {
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) enum Unary {
     Primary(Primary),
+    Call(Callee),
     LogicalNegation(Box<Unary>),
     ArithmNegation(Box<Unary>),
 }
