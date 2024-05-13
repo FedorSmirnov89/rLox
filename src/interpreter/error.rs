@@ -11,6 +11,7 @@ pub enum InterpreterError {
     UnaryOperatorError(UnaryOperatorError),
     IdentifierNotDefinedError(IdentifierNotDefinedError),
     TypeError(TypeError),
+    CallError,
 }
 
 impl InterpreterError {
@@ -58,6 +59,7 @@ impl InterpreterError {
             Self::UnaryOperatorError(e) => e.msg(src_str),
             Self::IdentifierNotDefinedError(e) => e.msg(),
             Self::TypeError(e) => e.msg(),
+            Self::CallError => "call error".to_owned(),
         }
     }
 

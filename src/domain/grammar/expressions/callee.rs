@@ -17,6 +17,18 @@ impl Callee {
             arguments,
         }
     }
+
+    pub(crate) fn identifier(&self) -> &CalleeIdentifier {
+        &self.identifier
+    }
+
+    pub(crate) fn arguments(&self) -> &[Expression] {
+        &self.arguments
+    }
+
+    pub(crate) fn arg_num(&self) -> usize {
+        self.arguments.len()
+    }
 }
 
 impl Display for Callee {

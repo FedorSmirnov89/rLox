@@ -33,7 +33,7 @@ impl InterpretedExpression for Unary {
                     }
                 }
             }
-            Unary::Call(_callee) => unimplemented!("Function calls are not yet implemented"),
+            Unary::Call(callee) => state.call(callee).map_err(|_| InterpreterError::CallError),
         }
     }
 }
