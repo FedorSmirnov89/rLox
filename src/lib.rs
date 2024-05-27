@@ -6,7 +6,6 @@ pub mod errors;
 
 mod arguments;
 mod interpreter;
-mod native_functions;
 mod parser;
 mod scanner;
 
