@@ -18,8 +18,10 @@ impl Callee {
         }
     }
 
-    pub(crate) fn identifier(&self) -> &CalleeIdentifier {
-        &self.identifier
+    pub(crate) fn identifier(&self) -> &str {
+        match &self.identifier {
+            CalleeIdentifier::Identifier(iden) => iden,
+        }
     }
 
     pub(crate) fn arguments(&self) -> &[Expression] {

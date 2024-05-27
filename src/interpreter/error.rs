@@ -11,7 +11,82 @@ pub enum InterpreterError {
     UnaryOperatorError(UnaryOperatorError),
     IdentifierNotDefinedError(IdentifierNotDefinedError),
     TypeError(TypeError),
-    CallError,
+    CallError(CallError),
+}
+
+#[derive(Debug)]
+pub(crate) enum CallError {
+    UnknownIdentifier(String),
+    WrongArgNum {
+        iden: String,
+        expected: usize,
+        found: usize,
+    },
+    WrongArgType {
+        iden: String,
+        pos: usize,
+        expected: ValueType,
+        found: ValueType,
+    },
+    InvalidArg {
+        iden: String,
+        pos: usize,
+        msg: String,
+    },
+}
+
+impl CallError {
+    pub(crate) fn invalid_arg(iden: impl Into<String>, pos: usize, msg: impl Into<String>) -> Self {
+        Self::InvalidArg {
+            iden: iden.into(),
+            pos,
+            msg: msg.into(),
+        }
+    }
+
+    pub(crate) fn wrong_arg_type(
+        iden: impl Into<String>,
+        pos: usize,
+        expected: ValueType,
+        found: ValueType,
+    ) -> Self {
+        Self::WrongArgType {
+            iden: iden.into(),
+            pos,
+            expected,
+            found,
+        }
+    }
+
+    pub(crate) fn wrong_arg_num(iden: impl Into<String>, expected: usize, found: usize) -> Self {
+        Self::WrongArgNum {
+            iden: iden.into(),
+            expected,
+            found,
+        }
+    }
+
+    pub(crate) fn unknown_identifier(name: impl Into<String>) -> Self {
+        Self::UnknownIdentifier(name.into())
+    }
+
+    fn msg(&self) -> String {
+        match self {
+            CallError::UnknownIdentifier(unknown) => format!("no callable called '{unknown}' is known"),
+            CallError::WrongArgNum {
+                expected,
+                found,
+                iden,
+            } => format!("wrong number of arguments for callable '{iden}': expected {expected}, found {found} arguments"),
+            CallError::WrongArgType {
+                iden,
+                pos,
+                expected,
+                found,
+            } => format!("wrong argumet type for the {pos}-th argument of callable '{iden}': expected {expected}, found {found}"),
+            CallError::InvalidArg {iden, pos, msg } => format!("failed to parse the {pos}-th argument of the callee called '{iden}'. Interpreter error message: {msg}"),
+        }
+    }
 }
 
 impl InterpreterError {
@@ -59,7 +134,7 @@ impl InterpreterError {
             Self::UnaryOperatorError(e) => e.msg(src_str),
             Self::IdentifierNotDefinedError(e) => e.msg(),
             Self::TypeError(e) => e.msg(),
-            Self::CallError => "call error".to_owned(),
+            Self::CallError(e) => e.msg(),
         }
     }
 

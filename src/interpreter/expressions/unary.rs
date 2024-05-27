@@ -33,7 +33,9 @@ impl InterpretedExpression for Unary {
                     }
                 }
             }
-            Unary::Call(callee) => state.call(callee).map_err(|_| InterpreterError::CallError),
+            Unary::Call(callee) => state
+                .call(callee)
+                .map_err(|call_err| InterpreterError::CallError(call_err)),
         }
     }
 }
