@@ -9,7 +9,7 @@ use crate::{
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Primary {
-    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
         let val = match self {
             Primary::Number(NumLiteral { value, span }) => {
                 Value::new(ValueType::Number(*value), *span)

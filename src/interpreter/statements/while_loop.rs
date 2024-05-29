@@ -20,7 +20,7 @@ impl InterpretedStatement for While {
 }
 
 impl While {
-    fn get_cond_bool(&self, env: &Environment) -> Result<bool, InterpreterError> {
+    fn get_cond_bool(&self, env: &mut Environment) -> Result<bool, InterpreterError> {
         let condition = &self.condition;
         let condition_val = condition.interpret_expression(env)?;
         let cond_bool = InterpreterError::unwrap_bool(condition_val, "while condition")?;

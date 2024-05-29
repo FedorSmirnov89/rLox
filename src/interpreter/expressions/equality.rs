@@ -10,7 +10,7 @@ use crate::{
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Equality {
-    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
         match self {
             Equality::Comparison(c) => c.interpret_expression(state),
             Equality::EqualityCheck { left, right } => {
@@ -32,7 +32,7 @@ fn operation(
     left: &Box<Equality>,
     right: &Comparison,
     operator: Operator,
-    state: &Environment,
+    state: &mut Environment,
 ) -> Result<Value, InterpreterError> {
     let left_val = left.interpret_expression(state)?;
     let right_val = right.interpret_expression(state)?;

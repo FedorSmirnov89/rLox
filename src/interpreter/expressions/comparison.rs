@@ -10,7 +10,7 @@ use crate::{
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Comparison {
-    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
         match self {
             Comparison::Term(t) => t.interpret_expression(state),
             Comparison::Greater { left, right } => {
@@ -38,7 +38,7 @@ fn comparison(
     left: &Box<Comparison>,
     right: &Term,
     operator: Operator,
-    state: &Environment,
+    state: &mut Environment,
 ) -> Result<Value, InterpreterError> {
     let left_val = left.interpret_expression(state)?;
     let right_val = right.interpret_expression(state)?;

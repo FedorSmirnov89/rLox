@@ -19,7 +19,7 @@ impl Environment {
         self.call_native_func(checked_arg_num, callee)
     }
 
-    fn interpret_args(&self, callee: &Callee) -> Result<Vec<Value>, CallError> {
+    fn interpret_args(&mut self, callee: &Callee) -> Result<Vec<Value>, CallError> {
         let args = callee.arguments();
         let mut interpreted_args = vec![];
         for (pos, arg) in args.iter().enumerate() {

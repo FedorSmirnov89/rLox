@@ -19,7 +19,7 @@ impl InterpretedStatement for Statement {
                 Ok(())
             }
             Statement::Assignment(iden, expr) => {
-                let value = expr.interpret_expression(&env)?;
+                let value = expr.interpret_expression(env)?;
                 match env.set_var_value(iden.as_ref(), value) {
                     Ok(()) => Ok(()),
                     Err(_) => Err(InterpreterError::identifier_not_defined(iden.clone())),

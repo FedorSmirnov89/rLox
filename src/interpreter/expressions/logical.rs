@@ -10,7 +10,7 @@ use crate::{
 use super::InterpretedExpression;
 
 impl InterpretedExpression for LogicOr {
-    fn interpret_expression(&self, env: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, env: &mut Environment) -> Result<Value, InterpreterError> {
         let (left, right) = match self {
             LogicOr::LogicAnd(l_and) => return l_and.interpret_expression(env),
             LogicOr::Or { left, right } => (left, right),
@@ -35,7 +35,7 @@ impl InterpretedExpression for LogicOr {
 }
 
 impl InterpretedExpression for LogicAnd {
-    fn interpret_expression(&self, env: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, env: &mut Environment) -> Result<Value, InterpreterError> {
         let (left, right) = match self {
             LogicAnd::Equality(eq) => return eq.interpret_expression(env),
             LogicAnd::And { left, right } => (left, right),

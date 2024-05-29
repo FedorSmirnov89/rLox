@@ -6,7 +6,7 @@ use crate::{
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Unary {
-    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
         match self {
             Unary::Primary(p) => p.interpret_expression(state),
             Unary::LogicalNegation(u) => {

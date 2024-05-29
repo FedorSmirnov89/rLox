@@ -7,7 +7,7 @@ use crate::{
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Factor {
-    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
         match self {
             Factor::Unary(u) => u.interpret_expression(state),
             Factor::Multiplication { left, right } => {

@@ -7,7 +7,7 @@ use crate::{
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Term {
-    fn interpret_expression(&self, state: &Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
         match self {
             Term::Factor(f) => f.interpret_expression(state),
             Term::Addition { left, right } => {
