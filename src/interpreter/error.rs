@@ -12,6 +12,7 @@ pub enum InterpreterError {
     IdentifierNotDefinedError(IdentifierNotDefinedError),
     TypeError(TypeError),
     CallError(CallError),
+    UnusedValueError,
 }
 
 #[derive(Debug)]
@@ -135,6 +136,7 @@ impl InterpreterError {
             Self::IdentifierNotDefinedError(e) => e.msg(),
             Self::TypeError(e) => e.msg(),
             Self::CallError(e) => e.msg(),
+            Self::UnusedValueError => "unused non-nil value".to_owned(),
         }
     }
 

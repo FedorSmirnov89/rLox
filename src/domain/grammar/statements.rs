@@ -25,23 +25,17 @@ pub(crate) enum Statement {
 }
 
 #[derive(Debug)]
-pub(crate) struct Block(Vec<Declaration>);
-
-impl Block {
-    pub(crate) fn into_inner(self) -> Vec<Declaration> {
-        self.0
-    }
-}
-
-impl AsRef<[Declaration]> for Block {
-    fn as_ref(&self) -> &[Declaration] {
-        &self.0
-    }
+pub(crate) struct Block {
+    pub(crate) statements: Vec<Declaration>,
+    pub(crate) final_expression: Option<Expression>,
 }
 
 impl Into<Block> for Vec<Declaration> {
     fn into(self) -> Block {
-        Block(self)
+        Block {
+            statements: self,
+            final_expression: None,
+        }
     }
 }
 
