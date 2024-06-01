@@ -1,30 +1,26 @@
 use super::{Expression, StringLiteral};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(crate) enum Declaration {
     Declaration(VarDeclaration),
     Statement(Statement),
     Block(Block),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(crate) enum VarDeclaration {
     Declare(StringLiteral),
     DeclareAndAssign(StringLiteral, Expression),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(crate) enum Statement {
     Expression(Expression),
     Print(Expression),
     Assignment(StringLiteral, Expression),
-    IfThen(IfThen),
-    IfThenElse(IfThenElse),
-    While(While),
-    For(DesugeredFor),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(crate) struct Block {
     pub(crate) statements: Vec<Declaration>,
     pub(crate) final_expression: Option<Expression>,
@@ -35,83 +31,6 @@ impl Into<Block> for Vec<Declaration> {
         Block {
             statements: self,
             final_expression: None,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct IfThen {
-    pub(crate) condition: Expression,
-    pub(crate) then: Box<Declaration>,
-}
-
-impl IfThen {
-    pub(crate) fn new(condition: Expression, then: Declaration) -> Self {
-        Self {
-            condition,
-            then: Box::new(then),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct IfThenElse {
-    pub(crate) if_then: IfThen,
-    pub(crate) else_block: Box<Declaration>,
-}
-
-impl IfThenElse {
-    pub(crate) fn new(if_then: IfThen, else_block: Declaration) -> Self {
-        Self {
-            if_then,
-            else_block: Box::new(else_block),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct While {
-    pub(crate) condition: Expression,
-    pub(crate) block: Box<Declaration>,
-}
-
-impl While {
-    pub(crate) fn new(condition: Expression, block: Declaration) -> Self {
-        Self {
-            condition,
-            block: Box::new(block),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct For {
-    pub(crate) init: Block,
-    pub(crate) condition: Expression,
-    pub(crate) update: Block,
-    pub(crate) block: Block,
-}
-
-impl For {
-    pub(crate) fn new(init: Block, condition: Expression, update: Block, block: Block) -> Self {
-        Self {
-            init,
-            condition,
-            update,
-            block,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct DesugeredFor {
-    pub(crate) for_block: Box<Declaration>,
-}
-
-impl DesugeredFor {
-    pub(crate) fn new(for_block: Declaration) -> Self {
-        Self {
-            for_block: Box::new(for_block),
         }
     }
 }

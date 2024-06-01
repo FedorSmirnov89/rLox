@@ -1,3 +1,5 @@
+pub(crate) mod control_flow;
+
 mod callee;
 mod primary;
 
@@ -7,9 +9,15 @@ pub(crate) use primary::*;
 #[cfg(test)]
 use crate::domain::location::Location;
 
+use self::control_flow::{DesugeredFor, IfThen, IfThenElse, While};
+
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) enum Expression {
     LogicOr(LogicOr),
+    IfThen(IfThen),
+    IfThenElse(IfThenElse),
+    While(While),
+    For(DesugeredFor),
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
