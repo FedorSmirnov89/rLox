@@ -4,7 +4,7 @@ use crate::{
     domain::{
         grammar::{
             control_flow::{DesugeredFor, For, IfThen, IfThenElse, While},
-            Expression,
+            Declaration, Expression, Statement,
         },
         scanning::TokenType,
     },
@@ -17,8 +17,14 @@ impl<'tokens> Parser<'tokens> {
             ExpressionType::If => self.if_expression(),
             ExpressionType::While => self.while_expression(),
             ExpressionType::For => self.for_expression(),
+            ExpressionType::Block => self.block_expressiont(),
             ExpressionType::OtherExpression => self.other_expression(),
         }
+    }
+
+    fn block_expressiont(&mut self) -> Result<Expression> {
+        let block = self.block()?;
+        Ok(Expression::Block(Box::new(block)))
     }
 
     fn if_expression(&mut self) -> Result<Expression> {
@@ -80,6 +86,8 @@ impl<'tokens> Parser<'tokens> {
             Ok(ExpressionType::While)
         } else if self.on_for_expression()? {
             Ok(ExpressionType::For)
+        } else if self.at_start_of_block()? {
+            Ok(ExpressionType::Block)
         } else {
             Ok(ExpressionType::OtherExpression)
         }
@@ -127,6 +135,7 @@ enum ExpressionType {
     If,
     While,
     For,
+    Block,
 }
 
 fn desugered_for(for_statement: For) -> DesugeredFor {
@@ -136,13 +145,15 @@ fn desugered_for(for_statement: For) -> DesugeredFor {
         update,
         block,
     } = for_statement;
-    let mut while_declarations = block.into_inner();
-    while_declarations.extend(update.into_inner());
-    let while_block = Declaration::Block(while_declarations.into());
+    let mut while_declarations = block.statements;
+    while_declarations.extend(update.statements);
+    let while_block = while_declarations.into();
     let while_loop = While::new(condition, while_block);
-    let mut init_declarations = init.into_inner();
+    let mut init_declarations = init.statements;
     // append the while loop to the end of the init block
-    init_declarations.push(Declaration::Statement(Statement::While(while_loop)));
-    let for_block = Declaration::Block(init_declarations.into());
+    init_declarations.push(Declaration::Statement(Statement::Expression(
+        Expression::While(while_loop),
+    )));
+    let for_block = init_declarations.into();
     DesugeredFor::new(for_block)
 }

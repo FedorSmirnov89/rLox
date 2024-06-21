@@ -40,7 +40,7 @@ pub(super) fn is_meaning_of_life(mut args: Vec<Value>) -> Result<Value, CallErro
 
 impl Environment {
     pub(super) fn call_native_func(
-        &self,
+        &mut self,
         func: NativeFunction,
         callee: &Callee,
     ) -> Result<Value, CallError> {

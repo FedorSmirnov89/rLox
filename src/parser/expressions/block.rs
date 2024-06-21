@@ -1,10 +1,7 @@
 use anyhow::Result;
 
 use crate::{
-    domain::{
-        grammar::{Block, Declaration},
-        scanning::TokenType,
-    },
+    domain::{grammar::Block, scanning::TokenType},
     parser::Parser,
 };
 
@@ -17,9 +14,8 @@ impl<'tokens> Parser<'tokens> {
         Ok(self.current()?.t_type == TokenType::BraceRight)
     }
 
-    pub(crate) fn block(&mut self) -> Result<Declaration> {
-        let block = self.read_block_content()?;
-        Ok(Declaration::Block(block))
+    pub(crate) fn block(&mut self) -> Result<Block> {
+        self.read_block_content()
     }
 
     pub(crate) fn read_block_content(&mut self) -> Result<Block> {

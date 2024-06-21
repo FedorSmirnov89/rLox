@@ -9,6 +9,10 @@ impl InterpretedStatement for Statement {
     fn interpret_statement(&self, env: &mut Environment) -> Result<(), InterpreterError> {
         match self {
             Statement::Expression(e) => {
+                let _value = e.interpret_expression(env)?; // value ignored on non-final expressions
+                Ok(())
+            }
+            Statement::FinalExpression(e) => {
                 let value = e.interpret_expression(env)?;
                 env.set_tmp_value(value);
                 Ok(())

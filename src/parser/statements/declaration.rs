@@ -7,13 +7,13 @@ use crate::{
 
 impl<'tokens> Parser<'tokens> {
     pub(crate) fn declaration(&mut self) -> Result<Declaration> {
-        if self.at_start_of_block()? {
-            self.block()
-        } else if self.at_start_of_var_declaration()? {
+        if self.at_start_of_var_declaration()? {
+            dbg!("declaration");
             self.advance();
             let var_declaration = self.var_declaration()?;
             Ok(Declaration::Declaration(var_declaration))
         } else {
+            dbg!("statement");
             let statement = self.statement()?;
             Ok(Declaration::Statement(statement))
         }

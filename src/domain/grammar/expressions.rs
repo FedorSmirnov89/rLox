@@ -11,6 +11,8 @@ use crate::domain::location::Location;
 
 use self::control_flow::{DesugeredFor, IfThen, IfThenElse, While};
 
+use super::Declaration;
+
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) enum Expression {
     LogicOr(LogicOr),
@@ -18,6 +20,22 @@ pub(crate) enum Expression {
     IfThenElse(IfThenElse),
     While(While),
     For(DesugeredFor),
+    Block(Box<Block>),
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub(crate) struct Block {
+    pub(crate) statements: Vec<Declaration>,
+    pub(crate) final_expression: Option<Expression>,
+}
+
+impl Into<Block> for Vec<Declaration> {
+    fn into(self) -> Block {
+        Block {
+            statements: self,
+            final_expression: None,
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]

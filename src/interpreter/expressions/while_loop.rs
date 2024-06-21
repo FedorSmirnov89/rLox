@@ -1,21 +1,23 @@
 use crate::{
-    domain::grammar::While,
+    domain::grammar::control_flow::While,
     interpreter::{error::InterpreterError, expressions::InterpretedExpression},
     Environment,
 };
 
-use super::InterpretedStatement;
-
-impl InterpretedStatement for While {
-    fn interpret_statement(&self, env: &mut Environment) -> Result<(), InterpreterError> {
+impl InterpretedExpression for While {
+    fn interpret_expression(
+        &self,
+        env: &mut Environment,
+    ) -> Result<crate::Value, InterpreterError> {
         let mut cond_bool = self.get_cond_bool(env)?;
         let while_block = &self.block;
 
+        let mut return_value = crate::Value::nil();
         while cond_bool {
-            while_block.interpret_statement(env)?;
+            return_value = while_block.interpret_expression(env)?;
             cond_bool = self.get_cond_bool(env)?;
         }
-        Ok(())
+        Ok(return_value)
     }
 }
 

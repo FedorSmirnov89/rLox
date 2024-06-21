@@ -1,10 +1,14 @@
-use crate::{domain::grammar::DesugeredFor, interpreter::error::InterpreterError, Environment};
+use crate::{
+    domain::grammar::control_flow::DesugeredFor, interpreter::error::InterpreterError, Environment,
+};
 
-use super::InterpretedStatement;
+use super::InterpretedExpression;
 
-impl InterpretedStatement for DesugeredFor {
-    fn interpret_statement(&self, env: &mut Environment) -> Result<(), InterpreterError> {
-        self.for_block.interpret_statement(env)?;
-        Ok(())
+impl InterpretedExpression for DesugeredFor {
+    fn interpret_expression(
+        &self,
+        env: &mut Environment,
+    ) -> Result<crate::Value, InterpreterError> {
+        self.for_block.interpret_expression(env)
     }
 }

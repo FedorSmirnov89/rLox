@@ -1,3 +1,4 @@
+pub(crate) mod block;
 pub(crate) mod callee;
 pub(crate) mod comparison;
 pub(crate) mod eq_check;

@@ -13,7 +13,7 @@ use self::native_functions::NativeFunction;
 mod native_functions;
 
 impl Environment {
-    pub(crate) fn call(&self, callee: &Callee) -> Result<Value, CallError> {
+    pub(crate) fn call(&mut self, callee: &Callee) -> Result<Value, CallError> {
         let checked_name = check_name(&callee)?;
         let checked_arg_num = check_argument_num(checked_name, callee)?;
         self.call_native_func(checked_arg_num, callee)

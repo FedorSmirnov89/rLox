@@ -1,15 +1,37 @@
 use std::fmt::Display;
 
 use super::{
-    Comparison, Equality, Expression, Factor, LogicAnd, LogicOr, NumLiteral, Primary,
-    StringLiteral, Term, Unary,
+    control_flow::IfThen, Block, Comparison, Equality, Expression, Factor, LogicAnd, LogicOr,
+    NumLiteral, Primary, StringLiteral, Term, Unary,
 };
 
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Expression::LogicOr(e) => write!(f, "{e}"),
+            Expression::IfThen(if_then) => write!(f, "{if_then:?}"),
+            Expression::IfThenElse(if_then_else) => write!(f, "{if_then_else:?}"),
+            Expression::While(while_expr) => write!(f, "{while_expr:?}"),
+            Expression::For(for_expr) => write!(f, "{for_expr:?}"),
+            Expression::Block(b) => write!(f, "{b:?}"),
         }
+    }
+}
+
+impl Display for IfThen {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "(IF {condition}\nTHEN {then})",
+            condition = self.condition,
+            then = self.then
+        )
+    }
+}
+
+impl Display for Block {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(BLOCK {statements:?})", statements = self.statements)
     }
 }
 

@@ -27,7 +27,7 @@ impl Block {
         for statement in &self.statements {
             statement.interpret_statement(env)?;
         }
-        if let Some(exp) = self.final_expression {
+        if let Some(exp) = &self.final_expression {
             exp.interpret_expression(env)
         } else {
             Ok(Value::nil())

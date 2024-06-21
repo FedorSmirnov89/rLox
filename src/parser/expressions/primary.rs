@@ -31,7 +31,7 @@ impl<'tokens> Parser<'tokens> {
                 Primary::GroupedExpression(Box::new(expr))
             }
 
-            TokenType::BraceLeft => todo!(),
+            TokenType::BraceLeft => todo!("unexpected left brace"),
             TokenType::BraceRight => todo!(),
             TokenType::ParenRight => todo!(),
             TokenType::Comma => todo!(),

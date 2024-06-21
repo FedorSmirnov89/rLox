@@ -46,9 +46,14 @@ impl<'tokens> Parser<'tokens> {
     }
 
     fn expression_statement(&mut self) -> Result<Statement> {
+        dbg!("on an expression statement");
         let expr = self.expression()?;
-        self.consume_semicolon()?;
-        Ok(Statement::Expression(expr))
+        if self.not_finished() {
+            self.consume_semicolon()?;
+            Ok(Statement::Expression(expr))
+        } else {
+            Ok(Statement::FinalExpression(expr))
+        }
     }
 
     fn current_statement(&self) -> Result<StatementType> {
