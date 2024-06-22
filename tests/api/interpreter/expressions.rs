@@ -27,7 +27,7 @@ macro_rules! it_interpreter {
             #[test]
             fn  [<$fn_name>]() {
                 // Arrange
-                let input = format!("{};", $input);
+                let input = format!("{}", $input);
                 let mut test_app = TestApp::spawn();
                 // Act
                 let output = test_app.process_input(&input);

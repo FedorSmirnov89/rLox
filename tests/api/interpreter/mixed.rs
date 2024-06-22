@@ -90,7 +90,7 @@ fn var_scope_shadow_removed_on_leaving_scope() {
         var b;
         {
             var a = true;
-        }
+        };
         b = a;
     "#;
     let mut test_app = TestApp::spawn();
@@ -105,7 +105,7 @@ fn var_scope_shadow_removed_on_leaving_scope() {
 }
 
 #[test]
-fn var_scope_leavin_scope_on_error() {
+fn var_scope_leaving_scope_on_error() {
     // Arrange
     let input = r#"
         var a = 1;
@@ -113,7 +113,7 @@ fn var_scope_leavin_scope_on_error() {
         {
             var a = true;
             undeclared = 1;
-        }
+        };
         b = a;
     "#;
     let mut test_app = TestApp::spawn();
