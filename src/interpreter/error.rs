@@ -197,7 +197,6 @@ impl BinaryOperatorError {
         msg.push_str("\n");
 
         msg.push_str("Left operand source:\n");
-        dbg!(&self.span_left.start.pos);
         let left_str = &src_str[self.span_left.start.pos..self.span_left.end.pos];
         msg.push_str(left_str);
         msg.push_str("\n");

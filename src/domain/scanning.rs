@@ -15,8 +15,6 @@ impl Token {
 
     pub fn keyword_or_identifier(chars: impl Into<String>, location: Location) -> Self {
         let chars = chars.into();
-        dbg!(&chars);
-
         let t_type = match chars.as_str() {
             "print" => TokenType::PRINT,
             "and" => TokenType::AND,

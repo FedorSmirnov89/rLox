@@ -44,9 +44,6 @@ impl<'tokens> Parser<'tokens> {
     }
 
     fn parse_identifier(&mut self) -> Result<Option<CalleeIdentifier>> {
-        let t_type = &self.current()?.t_type;
-        dbg!(t_type);
-
         match self.current()?.t_type {
             TokenType::Identifier(ref s) => {
                 self.advance();

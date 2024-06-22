@@ -37,10 +37,7 @@ impl<'tokens> Parser<'tokens> {
         let mut errors = vec![];
         while self.not_finished() {
             match self.declaration() {
-                Ok(s) => {
-                    dbg!("processed declaration");
-                    declarations.push(s)
-                }
+                Ok(s) => declarations.push(s),
                 Err(err) => {
                     errors.push(err);
                     self.synchronize();
