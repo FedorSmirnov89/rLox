@@ -47,10 +47,12 @@ impl<'tokens> Parser<'tokens> {
 
     fn expression_statement(&mut self) -> Result<Statement> {
         let expr = self.expression()?;
-        if self.not_finished() {
+        if self.not_finished() && self.not_on_closing_of_block() {
+            // here we also have to check for a right brace
             self.consume_semicolon()?;
             Ok(Statement::Expression(expr))
         } else {
+            dbg!("found final expression for block");
             Ok(Statement::FinalExpression(expr))
         }
     }

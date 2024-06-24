@@ -55,6 +55,10 @@ impl<'tokens> Parser<'tokens> {
         &self.current().expect("current pos is out of bounds").t_type != &TokenType::EOF
     }
 
+    fn not_on_closing_of_block(&self) -> bool {
+        &self.current().expect("current pos is out of bounds").t_type != &TokenType::BraceRight
+    }
+
     fn current(&self) -> Result<&'tokens Token> {
         self.tokens.get(self.cur_pos).ok_or(anyhow!(
             "Unexpected end of token stream when looking at current"

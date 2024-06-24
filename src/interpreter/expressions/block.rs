@@ -25,10 +25,14 @@ impl Block {
     ) -> Result<Value, InterpreterError> {
         // interpret all statetements
         for statement in &self.statements {
+            dbg!("interpreting statemet");
             statement.interpret_statement(env)?;
         }
         if let Some(exp) = &self.final_expression {
-            exp.interpret_expression(env)
+            dbg!("interpreting final expression");
+            let final_value = exp.interpret_expression(env);
+            dbg!(&final_value);
+            final_value
         } else {
             Ok(Value::nil())
         }

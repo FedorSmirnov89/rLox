@@ -127,3 +127,24 @@ fn var_scope_leaving_scope_on_error() {
     assert!(var.is_some(), "declared variable not in state");
     assert_eq!(ValueType::Number(1.0), var.unwrap().v_type);
 }
+
+#[test]
+fn assigning_block_value() {
+    // Arrange
+    let input = r#"
+        var a = 0;
+        var b = {
+            a = 1;
+            a
+        };
+    "#;
+    let mut test_app = TestApp::spawn();
+
+    // Act - interpret the input
+    test_app.process_input(input).unwrap();
+
+    // Assert - check  the value of b
+    let var = test_app.interpreter_state().get_var_value("b");
+    assert!(var.is_some(), "declared variable not in state");
+    assert_eq!(ValueType::Number(1.0), var.unwrap().v_type);
+}

@@ -1,7 +1,10 @@
 use anyhow::Result;
 
 use crate::{
-    domain::{grammar::Block, scanning::TokenType},
+    domain::{
+        grammar::{Block, Declaration, Statement},
+        scanning::TokenType,
+    },
     parser::Parser,
 };
 
@@ -21,10 +24,21 @@ impl<'tokens> Parser<'tokens> {
     pub(crate) fn read_block_content(&mut self) -> Result<Block> {
         self.advance(); // go past opening brace
         let mut statements = vec![];
+        let mut final_expression = None;
         while !self.at_end_of_block()? {
-            statements.push(self.declaration()?);
+            let statement = self.declaration()?;
+            if let Declaration::Statement(Statement::FinalExpression(expr)) = statement {
+                final_expression = Some(expr);
+                break;
+            } else {
+                statements.push(statement);
+            }
         }
         self.advance(); // go past closing brace
-        Ok(statements.into())
+        Ok(Block {
+            statements,
+            final_expression,
+        })
+        // Ok(statements.into())
     }
 }

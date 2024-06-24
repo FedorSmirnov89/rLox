@@ -17,12 +17,12 @@ impl<'tokens> Parser<'tokens> {
             ExpressionType::If => self.if_expression(),
             ExpressionType::While => self.while_expression(),
             ExpressionType::For => self.for_expression(),
-            ExpressionType::Block => self.block_expressiont(),
+            ExpressionType::Block => self.block_expression(),
             ExpressionType::OtherExpression => self.other_expression(),
         }
     }
 
-    fn block_expressiont(&mut self) -> Result<Expression> {
+    fn block_expression(&mut self) -> Result<Expression> {
         let block = self.block()?;
         Ok(Expression::Block(Box::new(block)))
     }
