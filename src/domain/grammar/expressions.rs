@@ -23,7 +23,7 @@ pub(crate) enum Expression {
     Block(Box<Block>),
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub(crate) struct Block {
     pub(crate) statements: Vec<Declaration>,
     pub(crate) final_expression: Option<Expression>,

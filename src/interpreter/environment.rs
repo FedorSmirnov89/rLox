@@ -1,6 +1,9 @@
 use anyhow::Result;
 
-use crate::Value;
+use crate::{
+    domain::grammar::{Block, FunDeclaration},
+    Value,
+};
 
 use self::scope::Scope;
 
@@ -29,6 +32,18 @@ impl Environment {
 
     pub fn declare_var(&mut self, iden: impl Into<String>) {
         self.scope_mut().declare_var(iden);
+    }
+
+    pub(crate) fn declare_fun(
+        &mut self,
+        iden: impl Into<String>,
+        fun_declaration: FunDeclaration,
+    ) -> Result<()> {
+        self.scope_mut().declare_fun(iden, fun_declaration)
+    }
+
+    pub(crate) fn get_fun_block(&mut self, iden: &str) -> Option<&FunDeclaration> {
+        self.scope().get_fun(iden)
     }
 
     pub fn set_var_value(&mut self, iden: impl Into<String>, val: Value) -> Result<()> {

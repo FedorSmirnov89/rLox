@@ -10,6 +10,7 @@ impl InterpretedStatement for Declaration {
         match self {
             Declaration::Declaration(var_decl) => var_decl.interpret_statement(env),
             Declaration::Statement(s) => s.interpret_statement(env),
+            Declaration::FuncDeclaration(fun_decl) => fun_decl.interpret_statement(env),
         }
     }
 }

@@ -3,6 +3,7 @@ use crate::{Value, ValueType};
 use super::{error::InterpreterError, Environment};
 
 mod declaration;
+mod fun_declaration;
 mod statement;
 mod var_declaration;
 

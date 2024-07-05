@@ -7,8 +7,10 @@ use crate::{
 
 impl<'tokens> Parser<'tokens> {
     pub(crate) fn declaration(&mut self) -> Result<Declaration> {
-        if self.at_start_of_var_declaration()? {
-            self.advance();
+        if self.at_start_of_fun_declaration()? {
+            let fun_declaration = self.fun_declaration()?;
+            Ok(Declaration::FuncDeclaration(fun_declaration))
+        } else if self.at_start_of_var_declaration()? {
             let var_declaration = self.var_declaration()?;
             Ok(Declaration::Declaration(var_declaration))
         } else {
@@ -19,5 +21,9 @@ impl<'tokens> Parser<'tokens> {
 
     fn at_start_of_var_declaration(&self) -> Result<bool> {
         Ok(self.current()?.t_type == TokenType::VAR)
+    }
+
+    fn at_start_of_fun_declaration(&self) -> Result<bool> {
+        Ok(self.current()?.t_type == TokenType::FUN)
     }
 }

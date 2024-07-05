@@ -2,12 +2,13 @@ use std::collections::HashMap;
 
 use anyhow::{bail, Result};
 
-use crate::Value;
+use crate::{domain::grammar::FunDeclaration, Value};
 
 #[derive(Debug)]
 pub(super) struct Scope {
     outer: Option<Box<Self>>,
     variables: HashMap<String, Value>,
+    functions: HashMap<String, FunDeclaration>,
 }
 
 impl Scope {
@@ -15,6 +16,7 @@ impl Scope {
         Self {
             outer: Some(Box::new(outer)),
             variables: HashMap::default(),
+            functions: HashMap::default(),
         }
     }
 
@@ -46,10 +48,35 @@ impl Scope {
         }
     }
 
+    pub(super) fn declare_fun(
+        &mut self,
+        iden: impl Into<String>,
+        fun_declaration: FunDeclaration,
+    ) -> Result<()> {
+        let key = iden.into();
+        if self.functions.contains_key(&key) {
+            bail!("function already declared")
+        } else {
+            self.functions.insert(key, fun_declaration);
+            Ok(())
+        }
+    }
+
+    pub(super) fn get_fun(&self, iden: &str) -> Option<&FunDeclaration> {
+        match self.functions.get(iden) {
+            Some(v) => Some(v),
+            None => match &self.outer {
+                Some(outer) => outer.get_fun(iden),
+                None => None,
+            },
+        }
+    }
+
     fn new_global() -> Self {
         Self {
             outer: None,
             variables: HashMap::default(),
+            functions: HashMap::default(),
         }
     }
 
@@ -185,5 +212,55 @@ mod test {
             env.get_var_value("a").unwrap().v_type,
             ValueType::Number(1.0)
         );
+    }
+
+    #[test]
+    fn declared_function_is_accessible() {
+        // Arrange
+        let mut env = Environment::default();
+        let fun_decl = FunDeclaration::empty_named("my_fun".to_owned());
+
+        // Act - add function
+        env.declare_fun("my_fun", fun_decl.clone())
+            .expect("failed to declare function");
+
+        // Assert check that environment has the function
+        assert_eq!(env.get_fun_block("my_fun").unwrap(), &fun_decl);
+    }
+
+    #[test]
+    fn functions_respect_scope() {
+        // Arrange - env with an inner scope and a function block
+        let mut env = Environment::default();
+        let fun = FunDeclaration::empty_named("my_fun".to_owned());
+        env.new_inner_scope();
+
+        // Act - add function in inner scope
+        env.declare_fun("my_fun", fun.clone())
+            .expect("failed to declare function");
+
+        // Assert I - check that function is accessible
+        assert_eq!(env.get_fun_block("my_fun").unwrap(), &fun);
+
+        // Act II - teardown inner scope
+        env.teardown_inner_scope();
+
+        // Assert II - check that function is not accessible
+        assert!(env.get_fun_block("my_fun").is_none());
+    }
+
+    #[test]
+    fn cannot_declare_same_fun_twice() {
+        // Arrange - env with a function block
+        let mut env = Environment::default();
+        let fun = FunDeclaration::empty_named("my_fun".to_owned());
+
+        // Act - add function twice
+        env.declare_fun("my_fun", fun.clone())
+            .expect("failed to declare function");
+        let result = env.declare_fun("my_fun", fun.clone());
+
+        // Assert - check that second declaration fails
+        assert!(result.is_err());
     }
 }

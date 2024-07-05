@@ -3,10 +3,7 @@
 use anyhow::Result;
 
 use crate::{
-    domain::{
-        grammar::{Callee, CalleeIdentifier, Expression},
-        scanning::TokenType,
-    },
+    domain::grammar::{Callee, CalleeIdentifier},
     parser::Parser,
 };
 
@@ -31,7 +28,7 @@ impl<'tokens> Parser<'tokens> {
     }
 
     fn parse_callee(&mut self) -> Result<Option<Callee>> {
-        let identifier = match self.parse_identifier()? {
+        let identifier = match self.parse_callee_identifier()? {
             Some(iden) => iden,
             None => return Ok(None),
         };
@@ -43,42 +40,7 @@ impl<'tokens> Parser<'tokens> {
         Ok(Some(callee))
     }
 
-    fn parse_identifier(&mut self) -> Result<Option<CalleeIdentifier>> {
-        match self.current()?.t_type {
-            TokenType::Identifier(ref s) => {
-                self.advance();
-                Ok(Some(s.clone().into()))
-            }
-            _ => Ok(None),
-        }
-    }
-
-    fn parse_arguments(&mut self) -> Result<Option<Vec<Expression>>> {
-        if let TokenType::ParenLeft = self.current()?.t_type {
-            self.advance();
-        } else {
-            return Ok(None);
-        };
-
-        let mut expressions = vec![];
-
-        // case with no arguments
-        if self.current()?.t_type == TokenType::ParenRight {
-            self.advance();
-        } else {
-            loop {
-                let expr = self.expression()?;
-                expressions.push(expr);
-                match self.current()?.t_type {
-                    TokenType::ParenRight => {
-                        self.advance();
-                        break;
-                    }
-                    TokenType::Comma => self.advance(),
-                    _ => return Ok(None), // incorrect arg list
-                }
-            }
-        }
-        Ok(Some(expressions))
+    fn parse_callee_identifier(&mut self) -> Result<Option<CalleeIdentifier>> {
+        Ok(self.parse_identifier()?.map(|iden_str| iden_str.into()))
     }
 }

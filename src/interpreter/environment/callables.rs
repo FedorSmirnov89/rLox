@@ -3,7 +3,7 @@
 use anyhow::Result;
 
 use crate::{
-    domain::grammar::Callee,
+    domain::grammar::{Callee, FunDeclaration},
     interpreter::{error::CallError, expressions::InterpretedExpression},
     Environment, Value,
 };
@@ -14,9 +14,15 @@ mod native_functions;
 
 impl Environment {
     pub(crate) fn call(&mut self, callee: &Callee) -> Result<Value, CallError> {
-        let checked_name = check_name(&callee)?;
+        let checked_name = self.check_name(&callee)?;
         let checked_arg_num = check_argument_num(checked_name, callee)?;
-        self.call_native_func(checked_arg_num, callee)
+        match checked_arg_num {
+            Function::Native(native) => self.call_native_func(native, callee),
+            Function::UserDefined(fun) => {
+                let args = self.interpret_args(callee)?;
+                self.call_user_function(fun, args)
+            }
+        }
     }
 
     fn interpret_args(&mut self, callee: &Callee) -> Result<Vec<Value>, CallError> {
@@ -34,25 +40,69 @@ impl Environment {
         }
         Ok(interpreted_args)
     }
+
+    fn check_name(&self, callee: &Callee) -> Result<Function, CallError> {
+        let name = callee.identifier();
+        if let Some(user_fun) = self.scope().get_fun(name) {
+            Ok(Function::UserDefined(user_fun.clone()))
+        } else {
+            let native_fun = callee.identifier().try_into()?;
+            Ok(Function::Native(native_fun))
+        }
+    }
+
+    fn call_user_function(
+        &mut self,
+        fun: FunDeclaration,
+        args: Vec<Value>,
+    ) -> Result<Value, CallError> {
+        self.new_inner_scope();
+        for (iden, val) in fun.arguments.iter().zip(args) {
+            self.scope_mut().declare_var(iden.clone());
+            self.scope_mut()
+                .set_var_value(iden, val)
+                .map_err(|_err| CallError::ParameterProblem)?;
+        }
+        let block = &fun.body;
+        let block_result = block
+            .interpret_expression(self)
+            .map_err(|inter_err| CallError::InterpreterProblem(Box::new(inter_err)))?;
+        self.teardown_inner_scope();
+        Ok(block_result)
+    }
 }
 
-fn check_argument_num(
-    checked_name: NativeFunction,
-    callee: &Callee,
-) -> Result<NativeFunction, CallError> {
+fn check_argument_num(checked_name: Function, callee: &Callee) -> Result<Function, CallError> {
     let expected = checked_name.arg_num();
     let found = callee.arg_num();
     if found == expected {
         Ok(checked_name)
     } else {
         Err(CallError::wrong_arg_num(
-            checked_name.as_ref(),
+            checked_name.name(),
             expected,
             found,
         ))
     }
 }
 
-fn check_name(callee: &Callee) -> Result<NativeFunction, CallError> {
-    callee.identifier().try_into()
+enum Function {
+    Native(NativeFunction),
+    UserDefined(FunDeclaration),
+}
+
+impl Function {
+    fn arg_num(&self) -> usize {
+        match self {
+            Function::Native(native) => native.arg_num(),
+            Function::UserDefined(user) => user.arguments.len(),
+        }
+    }
+
+    fn name(&self) -> &str {
+        match self {
+            Function::Native(native) => native.as_ref(),
+            Function::UserDefined(user) => &user.name,
+        }
+    }
 }

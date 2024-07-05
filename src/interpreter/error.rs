@@ -10,6 +10,7 @@ pub enum InterpreterError {
     BinaryOperatorError(BinaryOperatorError),
     UnaryOperatorError(UnaryOperatorError),
     IdentifierNotDefinedError(IdentifierNotDefinedError),
+    FunctionAlreadyDeclared(String),
     TypeError(TypeError),
     CallError(CallError),
     UnusedValueError,
@@ -34,6 +35,8 @@ pub(crate) enum CallError {
         pos: usize,
         msg: String,
     },
+    ParameterProblem,
+    InterpreterProblem(Box<InterpreterError>),
 }
 
 impl CallError {
@@ -86,6 +89,8 @@ impl CallError {
                 found,
             } => format!("wrong argumet type for the {pos}-th argument of callable '{iden}': expected {expected}, found {found}"),
             CallError::InvalidArg {iden, pos, msg } => format!("failed to parse the {pos}-th argument of the callee called '{iden}'. Interpreter error message: {msg}"),
+            CallError::ParameterProblem => "problem with parameters of user function".to_owned(),
+            CallError::InterpreterProblem(err) => format!("interpreter error: {err}"),
         }
     }
 }
@@ -136,6 +141,7 @@ impl InterpreterError {
             Self::IdentifierNotDefinedError(e) => e.msg(),
             Self::TypeError(e) => e.msg(),
             Self::CallError(e) => e.msg(),
+            Self::FunctionAlreadyDeclared(name) => format!("function '{name}' already declared"),
             Self::UnusedValueError => "unused non-nil value".to_owned(),
         }
     }

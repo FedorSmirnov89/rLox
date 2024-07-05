@@ -10,6 +10,7 @@ use crate::{
 
 impl<'tokens> Parser<'tokens> {
     pub(crate) fn var_declaration(&mut self) -> Result<VarDeclaration> {
+        self.advance(); // consume the var token
         let iden = StringLiteral::identifier_from_token(self.current()?)?;
         self.advance();
 
