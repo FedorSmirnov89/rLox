@@ -21,9 +21,7 @@ pub(crate) struct FunDeclaration {
 }
 
 impl FunDeclaration {
-    ///
-    /// Mostly for testing purposes
-    ///
+    #[cfg(test)]
     pub(crate) fn empty_named(name: String) -> Self {
         Self {
             name,

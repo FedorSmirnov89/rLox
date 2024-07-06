@@ -130,7 +130,7 @@ fn function_defintion_respects_scope() {
                 a - b
             }
             b = add(1, 2);
-        };
+        }
         var c = add(1, 2);
         "#;
     let mut test_app = TestApp::spawn();

@@ -13,7 +13,6 @@ pub enum InterpreterError {
     FunctionAlreadyDeclared(String),
     TypeError(TypeError),
     CallError(CallError),
-    UnusedValueError,
 }
 
 #[derive(Debug)]
@@ -142,7 +141,6 @@ impl InterpreterError {
             Self::TypeError(e) => e.msg(),
             Self::CallError(e) => e.msg(),
             Self::FunctionAlreadyDeclared(name) => format!("function '{name}' already declared"),
-            Self::UnusedValueError => "unused non-nil value".to_owned(),
         }
     }
 

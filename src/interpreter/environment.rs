@@ -1,9 +1,6 @@
 use anyhow::Result;
 
-use crate::{
-    domain::grammar::{Block, FunDeclaration},
-    Value,
-};
+use crate::{domain::grammar::FunDeclaration, Value};
 
 use self::scope::Scope;
 
@@ -42,6 +39,7 @@ impl Environment {
         self.scope_mut().declare_fun(iden, fun_declaration)
     }
 
+    #[cfg(test)]
     pub(crate) fn get_fun_block(&mut self, iden: &str) -> Option<&FunDeclaration> {
         self.scope().get_fun(iden)
     }
