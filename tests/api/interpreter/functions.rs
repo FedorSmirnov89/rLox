@@ -130,7 +130,7 @@ fn function_defintion_respects_scope() {
                 a - b
             }
             b = add(1, 2);
-        }
+        };
         var c = add(1, 2);
         "#;
     let mut test_app = TestApp::spawn();
@@ -150,4 +150,54 @@ fn function_defintion_respects_scope() {
     let var_c = test_app.interpreter_state().get_var_value("c");
     assert!(var_c.is_some(), "declared variable not in state");
     assert_eq!(ValueType::Number(3.0), var_c.unwrap().v_type);
+}
+
+#[test]
+fn wrong_arg_number_on_call() {
+    // Arrange
+    let input = r#"
+        fun add(a, b) {
+            a + b
+        }
+        var x = add(1);
+    "#;
+
+    let mut test_app = TestApp::spawn();
+
+    // Act - interpret the input
+    let result = test_app.process_input(input);
+
+    // Assert - we expect an error
+    assert_err!(result);
+}
+
+#[test]
+fn early_return() {
+    // Arrange
+    let input = r#"
+    fun my_fun(a, flag){
+        a = a + 1;
+        if (flag) {
+            return a;
+        }
+        a = a + 1;
+        a
+    }
+
+    var x = my_fun(1, true);
+    var y = my_fun(1, false);
+    "#;
+    let mut test_app = TestApp::spawn();
+
+    // Act - interpret the input
+    test_app.process_input(input).unwrap();
+
+    // Assert - we expect 2, 3
+    let var_x = test_app.interpreter_state().get_var_value("x");
+    assert!(var_x.is_some(), "declared variable not in state");
+    assert_eq!(ValueType::Number(2.0), var_x.unwrap().v_type);
+
+    let var_y = test_app.interpreter_state().get_var_value("y");
+    assert!(var_y.is_some(), "declared variable not in state");
+    assert_eq!(ValueType::Number(3.0), var_y.unwrap().v_type);
 }
