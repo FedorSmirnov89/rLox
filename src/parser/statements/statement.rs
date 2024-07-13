@@ -18,9 +18,27 @@ impl<'tokens> Parser<'tokens> {
             StatementType::Print => self.print_statement()?,
             StatementType::Expression => self.expression_statement()?,
             StatementType::Assignment => self.assignment_statement()?,
+            StatementType::Return => self.return_statement()?,
         };
 
         Ok(statement)
+    }
+
+    fn return_statement(&mut self) -> Result<Statement> {
+        self.advance(); // consume the return
+        if self.on_semicolon() {
+            self.advance(); // consume the semicolon
+            Ok(Statement::ReturnEmpty)
+        } else {
+            let expr = self.expression()?;
+            self.consume_semicolon()?;
+            Ok(Statement::Return(expr))
+        }
+    }
+
+    fn on_return_statement(&self) -> Result<bool> {
+        let current = self.current()?;
+        Ok(matches_t_type!(current, &TokenType::RETURN))
     }
 
     fn consume_semicolon(&mut self) -> Result<()> {
@@ -48,17 +66,17 @@ impl<'tokens> Parser<'tokens> {
     fn expression_statement(&mut self) -> Result<Statement> {
         let expr = self.expression()?;
         if self.not_finished() && self.not_on_closing_of_block() {
-            // here we also have to check for a right brace
             self.consume_semicolon()?;
             Ok(Statement::Expression(expr))
         } else {
-            dbg!("found final expression for block");
             Ok(Statement::FinalExpression(expr))
         }
     }
 
     fn current_statement(&self) -> Result<StatementType> {
-        if self.on_print_statement()? {
+        if self.on_return_statement()? {
+            Ok(StatementType::Return)
+        } else if self.on_print_statement()? {
             Ok(StatementType::Print)
         } else if self.on_assignment_statement()? {
             Ok(StatementType::Assignment)
@@ -86,4 +104,5 @@ enum StatementType {
     Print,
     Assignment,
     Expression,
+    Return,
 }

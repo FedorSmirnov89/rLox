@@ -4,10 +4,10 @@ use crate::{
     Environment,
 };
 
-use super::InterpretedStatement;
+use super::{InterpretedStatement, Outcome};
 
 impl InterpretedStatement for VarDeclaration {
-    fn interpret_statement(&self, state: &mut Environment) -> Result<(), InterpreterError> {
+    fn interpret_statement(&self, state: &mut Environment) -> Result<Outcome, InterpreterError> {
         let iden = match self {
             VarDeclaration::Declare(i) => i,
             VarDeclaration::DeclareAndAssign(i, _) => i,
@@ -23,6 +23,6 @@ impl InterpretedStatement for VarDeclaration {
             }
             VarDeclaration::Declare(_) => {}
         }
-        Ok(())
+        Ok(Outcome::Void)
     }
 }

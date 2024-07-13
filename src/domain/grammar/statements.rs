@@ -37,4 +37,6 @@ pub(crate) enum Statement {
     FinalExpression(Expression),
     Print(Expression),
     Assignment(StringLiteral, Expression),
+    Return(Expression),
+    ReturnEmpty,
 }

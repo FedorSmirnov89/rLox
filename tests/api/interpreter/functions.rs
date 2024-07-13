@@ -179,7 +179,7 @@ fn early_return() {
         a = a + 1;
         if (flag) {
             return a;
-        }
+        };
         a = a + 1;
         a
     }
@@ -192,12 +192,12 @@ fn early_return() {
     // Act - interpret the input
     test_app.process_input(input).unwrap();
 
-    // Assert - we expect 2, 3
-    let var_x = test_app.interpreter_state().get_var_value("x");
-    assert!(var_x.is_some(), "declared variable not in state");
-    assert_eq!(ValueType::Number(2.0), var_x.unwrap().v_type);
-
+    // Assert
     let var_y = test_app.interpreter_state().get_var_value("y");
     assert!(var_y.is_some(), "declared variable not in state");
     assert_eq!(ValueType::Number(3.0), var_y.unwrap().v_type);
+
+    let var_x = test_app.interpreter_state().get_var_value("x");
+    assert!(var_x.is_some(), "declared variable not in state");
+    assert_eq!(ValueType::Number(2.0), var_x.unwrap().v_type);
 }

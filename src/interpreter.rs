@@ -1,4 +1,5 @@
 use anyhow::Result;
+use statements::Outcome;
 
 use crate::{
     domain::grammar::{Declaration, Expression, Program, Statement},
@@ -63,7 +64,10 @@ impl Interpreter {
         let mut errors = vec![];
         for decl in program.into_iter() {
             match decl.interpret_statement(environment) {
-                Ok(()) => (),
+                Ok(Outcome::Void) => (),
+                Ok(Outcome::EarlyReturn(return_value)) => {
+                    return Ok(Some(return_value));
+                }
                 Err(e) => errors.push(e),
             }
         }
