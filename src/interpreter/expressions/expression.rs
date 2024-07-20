@@ -1,13 +1,15 @@
 use anyhow::Result;
 
 use crate::{
-    domain::grammar::Expression, interpreter::error::InterpreterError, Environment, Value,
+    domain::grammar::Expression,
+    interpreter::{error::InterpreterError, Outcome},
+    Environment,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Expression {
-    fn interpret_expression(&self, env: &mut Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, env: &mut Environment) -> Result<Outcome, InterpreterError> {
         match self {
             Expression::LogicOr(l_or) => l_or.interpret_expression(env),
             Expression::IfThen(if_then) => if_then.interpret_expression(env),

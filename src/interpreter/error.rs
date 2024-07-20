@@ -13,6 +13,7 @@ pub enum InterpreterError {
     FunctionAlreadyDeclared(String),
     TypeError(TypeError),
     CallError(CallError),
+    OtherError(String),
 }
 
 #[derive(Debug)]
@@ -141,6 +142,7 @@ impl InterpreterError {
             Self::TypeError(e) => e.msg(),
             Self::CallError(e) => e.msg(),
             Self::FunctionAlreadyDeclared(name) => format!("function '{name}' already declared"),
+            Self::OtherError(msg) => msg,
         }
     }
 
@@ -254,7 +256,7 @@ impl std::error::Error for InterpreterError {}
 #[macro_export]
 macro_rules! operator_error {
     // binary operators
-    ($left:ident, $right:ident, $oper_name: expr) => {
+    ($left:ident, $right:ident, $oper_name: expr) => {{
         let msg = format!(
             "operator {oper} not defined for types {left} and {right}",
             oper = $oper_name,
@@ -269,7 +271,7 @@ macro_rules! operator_error {
             $right.span(),
         );
         return Err(err);
-    };
+    }};
 
     // unary operators
     ($val:ident, $oper_name: expr) => {

@@ -2,14 +2,14 @@ use anyhow::Result;
 
 use crate::{
     domain::grammar::{NumLiteral, Primary, StringLiteral},
-    interpreter::error::InterpreterError,
+    interpreter::{error::InterpreterError, Outcome},
     Environment, Value, ValueType,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Primary {
-    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Outcome, InterpreterError> {
         let val = match self {
             Primary::Number(NumLiteral { value, span }) => {
                 Value::new(ValueType::Number(*value), *span)
@@ -20,12 +20,14 @@ impl InterpretedExpression for Primary {
             Primary::True(span) => Value::new(ValueType::Boolean(true), *span),
             Primary::False(span) => Value::new(ValueType::Boolean(false), *span),
             Primary::Nil(span) => Value::new(ValueType::Nil, *span),
-            Primary::GroupedExpression(expr) => expr.interpret_expression(state)?,
+            Primary::GroupedExpression(expr) => {
+                return expr.interpret_expression(state);
+            }
             Primary::Identifier(iden) => match state.get_var_value(iden.as_ref()) {
                 Some(v) => v.clone(),
                 None => return Err(InterpreterError::identifier_not_defined(iden.clone())),
             },
         };
-        Ok(val)
+        Ok(Outcome::Value(val))
     }
 }

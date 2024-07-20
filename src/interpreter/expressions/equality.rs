@@ -3,14 +3,14 @@ use crate::{
         grammar::{Comparison, Equality},
         location::CodeSpan,
     },
-    interpreter::error::InterpreterError,
-    operator_error, Environment, Value, ValueType,
+    interpreter::{error::InterpreterError, Outcome},
+    operator_error, value, Environment, Value, ValueType,
 };
 
 use super::InterpretedExpression;
 
 impl InterpretedExpression for Equality {
-    fn interpret_expression(&self, state: &mut Environment) -> Result<Value, InterpreterError> {
+    fn interpret_expression(&self, state: &mut Environment) -> Result<Outcome, InterpreterError> {
         match self {
             Equality::Comparison(c) => c.interpret_expression(state),
             Equality::EqualityCheck { left, right } => {
@@ -33,9 +33,9 @@ fn operation(
     right: &Comparison,
     operator: Operator,
     state: &mut Environment,
-) -> Result<Value, InterpreterError> {
-    let left_val = left.interpret_expression(state)?;
-    let right_val = right.interpret_expression(state)?;
+) -> Result<Outcome, InterpreterError> {
+    let left_val = value!(left, state);
+    let right_val = value!(right, state);
 
     let b = match (&left_val.v_type, &right_val.v_type) {
         (ValueType::Number(l), ValueType::Number(r)) => match operator {
@@ -62,5 +62,5 @@ fn operation(
         ValueType::Boolean(b),
         CodeSpan::merged(left_val.span(), right_val.span()),
     );
-    Ok(value)
+    Ok(Outcome::Value(value))
 }

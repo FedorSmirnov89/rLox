@@ -1,5 +1,4 @@
 use anyhow::Result;
-use statements::Outcome;
 
 use crate::{
     domain::grammar::{Declaration, Expression, Program, Statement},
@@ -65,7 +64,7 @@ impl Interpreter {
         for decl in program.into_iter() {
             match decl.interpret_statement(environment) {
                 Ok(Outcome::Void) => (),
-                Ok(Outcome::EarlyReturn(return_value)) => {
+                Ok(Outcome::Return(return_value)) | Ok(Outcome::Value(return_value)) => {
                     return Ok(Some(return_value));
                 }
                 Err(e) => errors.push(e),
@@ -97,4 +96,12 @@ fn single_expression(program: &Program) -> Option<Expression> {
 fn print_expr_ast(expr: Expression) {
     println!("here is the AST we got: ");
     println!("{}", expr);
+}
+
+#[must_use]
+#[derive(Debug)]
+pub(crate) enum Outcome {
+    Return(Value),
+    Value(Value),
+    Void,
 }
