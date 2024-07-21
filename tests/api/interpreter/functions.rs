@@ -201,3 +201,27 @@ fn early_return() {
     assert!(var_x.is_some(), "declared variable not in state");
     assert_eq!(ValueType::Number(2.0), var_x.unwrap().v_type);
 }
+
+#[test]
+fn fibonacci() {
+    // Arrange
+    let input = r#"
+    fun fibonacci(n) {
+        if (n <= 1) {
+            return n;
+        }else{
+            return fibonacci(n - 1) + fibonacci(n - 2);
+        };
+    }
+    var x = fibonacci(10);
+    "#;
+    let mut test_app = TestApp::spawn();
+
+    // Act - interpret the input
+    test_app.process_input(input).unwrap();
+
+    // Assert
+    let var_x = test_app.interpreter_state().get_var_value("x");
+    assert!(var_x.is_some(), "declared variable not in state");
+    assert_eq!(ValueType::Number(55.0), var_x.unwrap().v_type);
+}
