@@ -2,11 +2,11 @@ use anyhow::Result;
 
 use crate::{
     domain::{grammar::Declaration, scanning::TokenType},
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(crate) fn declaration(&mut self) -> Result<Declaration> {
+    pub(crate) fn declaration(&mut self) -> Result<Declaration, ParserError> {
         if self.at_start_of_fun_declaration()? {
             let fun_declaration = self.fun_declaration()?;
             Ok(Declaration::FuncDeclaration(fun_declaration))

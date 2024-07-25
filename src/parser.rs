@@ -1,10 +1,12 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
+use errors::ParserError;
 
 use crate::domain::{
     grammar::Program,
     scanning::{Token, TokenType},
 };
 
+mod errors;
 mod expressions;
 mod statements;
 
@@ -18,7 +20,7 @@ macro_rules! matches_t_type {
     };
 }
 
-pub(super) fn parse(tokens: Vec<Token>) -> Result<Program, Vec<anyhow::Error>> {
+pub(super) fn parse(tokens: Vec<Token>) -> Result<Program, Vec<ParserError>> {
     Parser::new(&tokens).parse()
 }
 
@@ -32,7 +34,7 @@ impl<'tokens> Parser<'tokens> {
         Self { tokens, cur_pos: 0 }
     }
 
-    fn parse(mut self) -> Result<Program, Vec<anyhow::Error>> {
+    fn parse(mut self) -> Result<Program, Vec<ParserError>> {
         let mut declarations = vec![];
         let mut errors = vec![];
         while self.not_finished() {
@@ -63,10 +65,10 @@ impl<'tokens> Parser<'tokens> {
         &self.current().expect("current pos is out of bounds").t_type != &TokenType::BraceRight
     }
 
-    fn current(&self) -> Result<&'tokens Token> {
-        self.tokens.get(self.cur_pos).ok_or(anyhow!(
-            "Unexpected end of token stream when looking at current"
-        ))
+    fn current(&self) -> Result<&'tokens Token, ParserError> {
+        self.tokens
+            .get(self.cur_pos)
+            .ok_or(ParserError::UnexpectedEndOfInput)
     }
 
     fn next(&self) -> Result<&'tokens Token> {
@@ -91,16 +93,16 @@ impl<'tokens> Parser<'tokens> {
         self.cur_pos += 1;
     }
 
-    fn expect(&mut self, t_type: &TokenType, context: &'static str) -> Result<()> {
+    fn expect(&mut self, t_type: &TokenType, context: &'static str) -> Result<(), ParserError> {
         let current = self.current()?;
         if matches_t_type!(current, t_type) {
             Ok(())
         } else {
-            bail!(
-                "Expected token type '{:?}' but got '{:?}'; Context: '{context}'; Token location: {loc};",
-                t_type,
-                current.t_type(),
-                loc = current.location()
+            ParserError::unexpected_token(
+                t_type.clone(),
+                current.t_type.clone(),
+                current.location(),
+                context,
             )
         }
     }

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 
 use crate::{
     domain::{
@@ -32,7 +32,7 @@ impl<'tokens> Parser<'tokens> {
             }
 
             TokenType::BraceLeft => todo!("unexpected left brace"),
-            TokenType::BraceRight => todo!(),
+            TokenType::BraceRight => bail!("unexpected right brace"),
             TokenType::ParenRight => todo!(),
             TokenType::Comma => todo!(),
             TokenType::Dot => todo!(),
