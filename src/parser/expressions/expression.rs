@@ -8,11 +8,11 @@ use crate::{
         },
         scanning::TokenType,
     },
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(crate) fn expression(&mut self) -> Result<Expression> {
+    pub(crate) fn expression(&mut self) -> Result<Expression, ParserError> {
         match self.expression_type()? {
             ExpressionType::If => self.if_expression(),
             ExpressionType::While => self.while_expression(),
@@ -22,12 +22,12 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn block_expression(&mut self) -> Result<Expression> {
+    fn block_expression(&mut self) -> Result<Expression, ParserError> {
         let block = self.block()?;
         Ok(Expression::Block(Box::new(block)))
     }
 
-    fn if_expression(&mut self) -> Result<Expression> {
+    fn if_expression(&mut self) -> Result<Expression, ParserError> {
         self.advance(); // consume the if
         let condition = self.expression()?;
         let then_block = self.block()?;
@@ -39,14 +39,14 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn if_then_else_expression(&mut self, if_then: IfThen) -> Result<Expression> {
+    fn if_then_else_expression(&mut self, if_then: IfThen) -> Result<Expression, ParserError> {
         self.advance(); // consume the else
         let else_block = self.block()?;
         let if_then_else = IfThenElse::new(if_then, else_block);
         Ok(Expression::IfThenElse(if_then_else))
     }
 
-    fn while_expression(&mut self) -> Result<Expression> {
+    fn while_expression(&mut self) -> Result<Expression, ParserError> {
         self.advance(); // consume the while
         let condition = self.expression()?;
         let block = self.block()?;
@@ -54,13 +54,13 @@ impl<'tokens> Parser<'tokens> {
         Ok(Expression::While(while_statement))
     }
 
-    fn for_expression(&mut self) -> Result<Expression> {
+    fn for_expression(&mut self) -> Result<Expression, ParserError> {
         let for_statement = self.raw_for_expression()?;
         let desugered_for = desugered_for(for_statement);
         Ok(Expression::For(desugered_for))
     }
 
-    fn raw_for_expression(&mut self) -> Result<For> {
+    fn raw_for_expression(&mut self) -> Result<For, ParserError> {
         self.advance(); // consume the for
         let init = self.read_block_content()?;
         self.expect(&TokenType::BraceLeft, "opening bracket for condition")?;
@@ -74,12 +74,12 @@ impl<'tokens> Parser<'tokens> {
         Ok(for_statement)
     }
 
-    fn other_expression(&mut self) -> Result<Expression> {
+    fn other_expression(&mut self) -> Result<Expression, ParserError> {
         let l_or = self.logic_or()?;
         Ok(Expression::LogicOr(l_or))
     }
 
-    fn expression_type(&self) -> Result<ExpressionType> {
+    fn expression_type(&self) -> Result<ExpressionType, ParserError> {
         if self.on_if_expression()? {
             Ok(ExpressionType::If)
         } else if self.on_while_expression()? {
@@ -93,7 +93,7 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn on_if_expression(&self) -> Result<bool> {
+    fn on_if_expression(&self) -> Result<bool, ParserError> {
         let current_t = self.current()?.t_type();
         if let TokenType::IF = current_t {
             Ok(true)
@@ -102,7 +102,7 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn on_else_branch(&self) -> Result<bool> {
+    fn on_else_branch(&self) -> Result<bool, ParserError> {
         let current_t = self.current()?.t_type();
         if let TokenType::ELSE = current_t {
             Ok(true)
@@ -111,7 +111,7 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn on_while_expression(&self) -> Result<bool> {
+    fn on_while_expression(&self) -> Result<bool, ParserError> {
         let current_t = self.current()?.t_type();
         if let TokenType::WHILE = current_t {
             Ok(true)
@@ -120,7 +120,7 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn on_for_expression(&self) -> Result<bool> {
+    fn on_for_expression(&self) -> Result<bool, ParserError> {
         let current_t = self.current()?.t_type();
         if let TokenType::FOR = current_t {
             Ok(true)

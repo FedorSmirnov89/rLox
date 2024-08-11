@@ -3,7 +3,7 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::Term, scanning::TokenType},
     matches_t_type,
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
@@ -11,7 +11,7 @@ impl<'tokens> Parser<'tokens> {
     /// Reads out a term expression from the current position in the token stream. Also advances the
     /// current position in the token stream to the next token after the term.
     ///
-    pub(super) fn term(&mut self) -> Result<Term> {
+    pub(super) fn term(&mut self) -> Result<Term, ParserError> {
         let mut term = Term::Factor(self.factor()?);
         if let Ok(mut current) = self.current() {
             while matches_t_type!(current, &TokenType::Plus, &TokenType::Minus) {

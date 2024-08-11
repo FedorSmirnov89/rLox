@@ -1,15 +1,15 @@
-use anyhow::{bail, Result};
+use anyhow::Result;
 
 use crate::{
     domain::{
         grammar::{NumLiteral, Primary, StringLiteral},
         scanning::TokenType,
     },
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(super) fn primary(&mut self) -> Result<Primary> {
+    pub(super) fn primary(&mut self) -> Result<Primary, ParserError> {
         let current = self.current()?;
         let location = current.location();
 
@@ -31,8 +31,13 @@ impl<'tokens> Parser<'tokens> {
                 Primary::GroupedExpression(Box::new(expr))
             }
 
-            TokenType::BraceLeft => todo!("unexpected left brace"),
-            TokenType::BraceRight => bail!("unexpected right brace"),
+            TokenType::BraceLeft | TokenType::BraceRight => {
+                return ParserError::unexpected_token(
+                    current.t_type.clone(),
+                    location,
+                    "parsing primary",
+                )
+            }
             TokenType::ParenRight => todo!(),
             TokenType::Comma => todo!(),
             TokenType::Dot => todo!(),

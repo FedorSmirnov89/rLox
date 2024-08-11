@@ -3,11 +3,11 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::Factor, scanning::TokenType},
     matches_t_type,
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(super) fn factor(&mut self) -> Result<Factor> {
+    pub(super) fn factor(&mut self) -> Result<Factor, ParserError> {
         let mut factor = Factor::Unary(self.unary()?);
         if let Ok(mut current) = self.current() {
             while matches_t_type!(current, &TokenType::Star, &TokenType::Division) {

@@ -4,7 +4,7 @@ use anyhow::Result;
 
 use crate::{
     domain::grammar::{Callee, CalleeIdentifier},
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
@@ -15,7 +15,7 @@ impl<'tokens> Parser<'tokens> {
     ///
     /// If unsuccessful, the parser position is not advanced by this operation
     ///
-    pub(super) fn callee(&mut self) -> Result<Option<Callee>> {
+    pub(super) fn callee(&mut self) -> Result<Option<Callee>, ParserError> {
         let position = self.cur_pos;
         match self.parse_callee() {
             Ok(Some(callee)) => Ok(Some(callee)),
@@ -27,7 +27,7 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn parse_callee(&mut self) -> Result<Option<Callee>> {
+    fn parse_callee(&mut self) -> Result<Option<Callee>, ParserError> {
         let identifier = match self.parse_callee_identifier()? {
             Some(iden) => iden,
             None => return Ok(None),
@@ -40,7 +40,7 @@ impl<'tokens> Parser<'tokens> {
         Ok(Some(callee))
     }
 
-    fn parse_callee_identifier(&mut self) -> Result<Option<CalleeIdentifier>> {
+    fn parse_callee_identifier(&mut self) -> Result<Option<CalleeIdentifier>, ParserError> {
         Ok(self.parse_identifier()?.map(|iden_str| iden_str.into()))
     }
 }

@@ -1,5 +1,4 @@
-use anyhow::{anyhow, Result};
-use errors::ParserError;
+pub(crate) use errors::{ErrorLocation, ParserError};
 
 use crate::domain::{
     grammar::Program,
@@ -68,13 +67,13 @@ impl<'tokens> Parser<'tokens> {
     fn current(&self) -> Result<&'tokens Token, ParserError> {
         self.tokens
             .get(self.cur_pos)
-            .ok_or(ParserError::UnexpectedEndOfInput)
+            .ok_or(ParserError::unexpected_end_err())
     }
 
-    fn next(&self) -> Result<&'tokens Token> {
-        self.tokens.get(self.cur_pos + 1).ok_or(anyhow!(
-            "Unexpected end of token stream when looking at next"
-        ))
+    fn next(&self) -> Result<&'tokens Token, ParserError> {
+        self.tokens
+            .get(self.cur_pos + 1)
+            .ok_or_else(|| ParserError::unexpected_end_err())
     }
 
     fn synchronize(&mut self) {
@@ -98,7 +97,7 @@ impl<'tokens> Parser<'tokens> {
         if matches_t_type!(current, t_type) {
             Ok(())
         } else {
-            ParserError::unexpected_token(
+            ParserError::token_mismatch(
                 t_type.clone(),
                 current.t_type.clone(),
                 current.location(),

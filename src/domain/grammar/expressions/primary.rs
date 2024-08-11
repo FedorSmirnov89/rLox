@@ -1,9 +1,4 @@
-use anyhow::{bail, Result};
-
-use crate::domain::{
-    location::{CodeSpan, Location},
-    scanning::{Token, TokenType},
-};
+use crate::domain::location::{CodeSpan, Location};
 
 use super::Expression;
 
@@ -104,14 +99,6 @@ impl StringLiteral {
         let end = start.shifted(value.len());
         let span = CodeSpan { start, end };
         Self::new(value, span)
-    }
-
-    pub(crate) fn identifier_from_token(token: &Token) -> Result<Self> {
-        let TokenType::Identifier(iden) = token.t_type() else {
-            bail!("current is not an identifier")
-        };
-        let start = token.location();
-        Ok(Self::new_identifier(iden, start))
     }
 }
 

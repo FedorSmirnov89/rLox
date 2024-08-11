@@ -3,11 +3,11 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::Unary, scanning::TokenType},
     matches_t_type,
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(super) fn unary(&mut self) -> Result<Unary> {
+    pub(super) fn unary(&mut self) -> Result<Unary, ParserError> {
         let current = self.current()?;
         if matches_t_type!(current, &TokenType::Bang, &TokenType::Minus) {
             self.advance();

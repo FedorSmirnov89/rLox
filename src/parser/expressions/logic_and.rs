@@ -3,11 +3,11 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::LogicAnd, scanning::TokenType},
     matches_t_type,
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(crate) fn logic_and(&mut self) -> Result<LogicAnd> {
+    pub(crate) fn logic_and(&mut self) -> Result<LogicAnd, ParserError> {
         let mut eq_check = LogicAnd::Equality(self.equality()?);
         let mut current = self.current()?;
         while matches_t_type!(current, &TokenType::AND) {

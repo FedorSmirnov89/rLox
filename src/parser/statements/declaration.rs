@@ -19,11 +19,11 @@ impl<'tokens> Parser<'tokens> {
         }
     }
 
-    fn at_start_of_var_declaration(&self) -> Result<bool> {
+    fn at_start_of_var_declaration(&self) -> Result<bool, ParserError> {
         Ok(self.current()?.t_type == TokenType::VAR)
     }
 
-    fn at_start_of_fun_declaration(&self) -> Result<bool> {
+    fn at_start_of_fun_declaration(&self) -> Result<bool, ParserError> {
         Ok(self.current()?.t_type == TokenType::FUN)
     }
 }

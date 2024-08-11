@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+pub use interpreter::LoxError;
 use std::fmt::Write;
 
 pub mod domain;
@@ -76,7 +77,7 @@ pub fn run_prompt() -> Result<()> {
     Ok(())
 }
 
-fn summarize_errors(errors: Vec<anyhow::Error>) -> Result<anyhow::Error> {
+fn summarize_errors(errors: Vec<LoxError>) -> Result<anyhow::Error> {
     let mut msg = String::new();
     for e in errors {
         writeln!(msg, "{e}").context("error writing summary error")?;

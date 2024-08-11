@@ -3,11 +3,11 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::LogicOr, scanning::TokenType},
     matches_t_type,
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(crate) fn logic_or(&mut self) -> Result<LogicOr> {
+    pub(crate) fn logic_or(&mut self) -> Result<LogicOr, ParserError> {
         let mut l_and = LogicOr::LogicAnd(self.logic_and()?);
         let mut current = self.current()?;
         while matches_t_type!(current, &TokenType::OR) {

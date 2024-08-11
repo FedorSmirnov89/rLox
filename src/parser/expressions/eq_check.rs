@@ -3,11 +3,11 @@ use anyhow::Result;
 use crate::{
     domain::{grammar::Equality, scanning::TokenType},
     matches_t_type,
-    parser::Parser,
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(crate) fn equality(&mut self) -> Result<Equality> {
+    pub(crate) fn equality(&mut self) -> Result<Equality, ParserError> {
         let mut comp = Equality::Comparison(self.comparison()?);
         let mut current = self.current()?;
         while matches_t_type!(current, &TokenType::EqualEqual, &TokenType::BangEqual) {

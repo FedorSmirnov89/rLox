@@ -1,17 +1,14 @@
 use anyhow::Result;
 
 use crate::{
-    domain::{
-        grammar::{StringLiteral, VarDeclaration},
-        scanning::TokenType,
-    },
-    parser::Parser,
+    domain::{grammar::VarDeclaration, scanning::TokenType},
+    parser::{errors::ParserError, Parser},
 };
 
 impl<'tokens> Parser<'tokens> {
-    pub(crate) fn var_declaration(&mut self) -> Result<VarDeclaration> {
+    pub(crate) fn var_declaration(&mut self) -> Result<VarDeclaration, ParserError> {
         self.advance(); // consume the var token
-        let iden = StringLiteral::identifier_from_token(self.current()?)?;
+        let iden = Self::identifier_from_token(self.current()?)?;
         self.advance();
 
         if self.current()?.t_type == TokenType::Equal {
