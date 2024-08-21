@@ -34,10 +34,6 @@ impl ParserError {
         }
     }
 
-    pub(crate) fn unexpected_end<T>() -> Result<T, Self> {
-        Err(Self::unexpected_end_err())
-    }
-
     pub(crate) fn unexpected_end_err() -> Self {
         let msg = "unexpected end of token stream".to_owned();
         ParserError {
@@ -84,7 +80,7 @@ fn msg_unexpected_token(token: TokenType, context: &'static str) -> String {
 
 fn msg_token_mismatch(expected: TokenType, actual: TokenType, context: &'static str) -> String {
     format!(
-        "Toke mismatch: Expected '{:?}' but got '{:?}'; Context: '{context}'",
+        "Token mismatch: Expected '{:?}' but got '{:?}'; Context: '{context}'",
         expected, actual
     )
 }
